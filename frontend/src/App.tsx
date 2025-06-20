@@ -6,10 +6,13 @@ function App() {
   const [count, setCount] = useState(0);
   const [message, setMessage] = useState(""); //for testing
 
+  //test button
   const handleButtonClick = async () => {
     try {
-      const message = fetchRoot();
-      console.log("Root message: ", message);
+      setCount((count) => count + 1);
+      const rootMessage = await fetchRoot();
+      setMessage(JSON.stringify(rootMessage));
+      // console.log("Root message: ", rootMessage);
     } catch (error) {
       console.log("Error: ", error);
     }
@@ -18,10 +21,9 @@ function App() {
   return (
     <>
       <div className="card">
-        {/* <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button> */}
         <button onClick={handleButtonClick}>Root</button>
+        <p>Count is {count}</p>
+        <p>{message}</p>
       </div>
     </>
   );
