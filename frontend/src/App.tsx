@@ -1,3 +1,5 @@
+import { StagewiseToolbar } from "@stagewise/toolbar-react";
+import { ReactPlugin } from "@stagewise-plugins/react";
 import { useState } from "react";
 import "./App.css";
 import { fetchRoot } from "./services/api";
@@ -20,6 +22,7 @@ function App() {
 
   return (
     <>
+      <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
       <div className="card">
         <button onClick={handleButtonClick}>Root</button>
         <p>Count is {count}</p>
