@@ -22,7 +22,9 @@ function App() {
 
   return (
     <>
-      <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
+      {import.meta.env.DEV && (
+        <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
+      )}
       <div className="card">
         <button onClick={handleButtonClick}>Root</button>
         <p>Count is {count}</p>
