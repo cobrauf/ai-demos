@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from src.services import testChain
 
 app = FastAPI()
 
@@ -20,4 +21,4 @@ app.add_middleware(
 
 @app.get("/")
 def read_root():
-    return "Backend is running."
+    return testChain.test_llm_call()
