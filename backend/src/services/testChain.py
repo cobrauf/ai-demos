@@ -1,27 +1,16 @@
 import os
 from dotenv import load_dotenv
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
+from ..config.llm_config import llm
 
-
-load_dotenv()
-
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-GOOGLE_MODEL=os.getenv("GOOGLE_MODEL")
-
-
-try:
-    llm = ChatGoogleGenerativeAI(
-    google_api_key=GOOGLE_API_KEY,
-    model=GOOGLE_MODEL,
-    temperature=0.0,
-    )
-except Exception as e:
-    print(f"Error initializing Google Generative AI: {e}")
-    raise e
 
 def test_llm_call() -> str:
-    response = llm.invoke("Write a haiku about a random topic.")
+    """
+    Makes a test call to the LLM and returns the content of the response.
+    """
+    print(f"Calling model: {llm.model_name}")
+    response = llm.invoke("Write a haiku about a random food. Return only the haiku")
     return response.content
 
 if __name__ == "__main__":
