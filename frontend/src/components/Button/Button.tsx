@@ -2,7 +2,7 @@ import { type ButtonHTMLAttributes } from "react";
 import styles from "./Button.module.css";
 import clsx from "clsx";
 
-type ButtonVariant = "primary" | "secondary" | "danger" | "success" | "warning";
+type ButtonVariant = "base" | "cancel";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -10,13 +10,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export function Button({
   className,
-  variant = "primary",
+  variant = "base",
   children,
   ...props
 }: ButtonProps) {
   const buttonClasses = clsx(
-    styles.base, // Always apply the base style
-    styles[variant], // Apply the variant style based on the prop (e.g., styles.primary)
+    styles.button, // Always apply the base style
+    styles[variant], // Apply the variant style based on the prop
     className // Allow passing in extra custom classes from the parent
   );
 

@@ -27,7 +27,9 @@ function App() {
         <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
       )}
       <div className="card">
-        <Button onClick={handleButtonClick}>Root</Button>
+        <Button variant="cancel" onClick={handleButtonClick}>
+          Root
+        </Button>
         <p>Count is {count}</p>
         <p>{message}</p>
       </div>
