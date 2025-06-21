@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+[ProjectDoc.md](mdc:docs/ProjectDoc.md) always refer to this file for project structure.
+

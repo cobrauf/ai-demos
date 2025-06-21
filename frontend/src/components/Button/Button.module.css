@@ -1,0 +1,44 @@
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6em 1.2em;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s, background-color 0.25s;
+}
+
+.base:focus,
+.base:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* --- VARIANT STYLES --- */
+.primary {
+  background-color: #646cff;
+  color: white;
+}
+.primary:hover {
+  background-color: #535bf2;
+}
+
+.secondary {
+  background-color: #f9f9f9;
+  color: #213547;
+  border-color: #ccc;
+}
+.secondary:hover {
+  border-color: #646cff;
+}
+
+/* --- OTHER MODIFIERS --- */
+.base:disabled {
+  background-color: #1a1a1a;
+  border-color: #444;
+  color: #666;
+  cursor: not-allowed;
+}
