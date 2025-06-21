@@ -18,6 +18,7 @@
 }
 
 /* --- VARIANT STYLES --- */
+/* When adding a new style, update the string literal in Button.tsx */
 .base {
   background-color: #646cff;
   color: white;
@@ -33,6 +34,25 @@
 }
 .cancel:hover {
   border-color: #646cff;
+}
+
+.gradient {
+  background-image: linear-gradient(
+    to right,
+    #ff6e7f 0%,
+    #bfe9ff 51%,
+    #ff6e7f 100%
+  );
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;
+  border: none;
+}
+
+.gradient:hover {
+  background-position: right center;
+  color: #fff;
+  text-decoration: none;
 }
 
 /* --- OTHER MODIFIERS --- */
