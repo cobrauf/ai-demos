@@ -1,0 +1,59 @@
+.menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 250px;
+  background-color: var(--background-color);
+  border-right: 1px solid var(--border-color, #333);
+  padding: 20px;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu.open {
+  transform: translateX(0);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 24px;
+  cursor: pointer;
+  align-self: flex-end;
+  margin-bottom: 20px;
+}
+
+.themeSection h3 {
+  color: var(--text-color);
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.2em;
+}
+
+.themeButtons {
+  display: flex;
+  flex-direction: column;
+}
+
+.themeButton {
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: var(--text-color);
+  padding: 10px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 5px;
+  font-size: 1em;
+}
+
+.themeButton.selected {
+  font-weight: bold;
+  border-left: 3px solid var(--accent-color, #646cff);
+  background-color: rgba(100, 108, 255, 0.1);
+}

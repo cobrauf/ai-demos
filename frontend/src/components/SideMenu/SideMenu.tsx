@@ -1,0 +1,48 @@
+import React from "react";
+import clsx from "clsx";
+import styles from "./SideMenu.module.css";
+
+interface SideMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+  theme: "light" | "dark";
+  setTheme: (theme: "light" | "dark") => void;
+}
+
+const SideMenu: React.FC<SideMenuProps> = ({
+  isOpen,
+  onClose,
+  theme,
+  setTheme,
+}) => {
+  return (
+    <div className={clsx(styles.menu, { [styles.open]: isOpen })}>
+      <button onClick={onClose} className={styles.closeButton}>
+        &times;
+      </button>
+      <div className={styles.themeSection}>
+        <h3>Themes</h3>
+        <div className={styles.themeButtons}>
+          <button
+            className={clsx(styles.themeButton, {
+              [styles.selected]: theme === "light",
+            })}
+            onClick={() => setTheme("light")}
+          >
+            Light
+          </button>
+          <button
+            className={clsx(styles.themeButton, {
+              [styles.selected]: theme === "dark",
+            })}
+            onClick={() => setTheme("dark")}
+          >
+            Dark
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SideMenu;
