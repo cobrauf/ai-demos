@@ -11,7 +11,7 @@ function App() {
   const [count, setCount] = useState(0);
   const [message, setMessage] = useState(""); //for testing
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { theme, setTheme } = useTheme(); //understand this <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  const { theme, setTheme } = useTheme();
 
   //test button
   const handleButtonClick = async () => {
@@ -38,9 +38,11 @@ function App() {
       {import.meta.env.DEV && (
         <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
       )}
-      <div className="menu-trigger" onClick={toggleMenu}>
-        ☰
-      </div>
+      {!isMenuOpen && (
+        <div className="menu-trigger" onClick={toggleMenu}>
+          ☰
+        </div>
+      )}
 
       <SideMenu
         isOpen={isMenuOpen}
@@ -53,7 +55,7 @@ function App() {
 
       <div className="card">
         <Button variant="gradient" onClick={handleButtonClick}>
-          Root
+          Action
         </Button>
         <p>Count is {count}</p>
         <p>{message}</p>
