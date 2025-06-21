@@ -1,8 +1,9 @@
 import { StagewiseToolbar } from "@stagewise/toolbar-react";
 import { ReactPlugin } from "@stagewise-plugins/react";
 import { useState } from "react";
-import "./App.css";
+import "./styles/App.css";
 import { fetchRoot } from "./services/api";
+import { Button } from "./components/Button/Button";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -26,9 +27,9 @@ function App() {
         <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
       )}
       <div className="card">
-        <button className="btn btn-warning" onClick={handleButtonClick}>
+        <Button variant="gradient" onClick={handleButtonClick}>
           Root
-        </button>
+        </Button>
         <p>Count is {count}</p>
         <p>{message}</p>
       </div>
