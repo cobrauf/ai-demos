@@ -17,10 +17,22 @@ html[data-theme="dark"] {
   --background: linear-gradient(135deg, #343434 0%, #272727 100%);
   --text-color: rgba(255, 255, 255, 0.87);
   --text-color-secondary: #aaaaaa;
+  --button-bg-color: #1a1a1a;
   --background-hover: #3a3a3a;
   --button-text-color: #ffffff;
   --chat-background: #1e1e1e;
   --input-bg-color: #2c2c2c;
+
+  /* Button Colors */
+  --btn-base-bg: #646cff;
+  --btn-base-bg-hover: #535bf2;
+  --btn-cancel-bg: #f9f9f9;
+  --btn-cancel-text: #213547;
+  --btn-cancel-border: #ccc;
+  --btn-cancel-border-hover: #646cff;
+  --btn-disabled-bg: #1a1a1a;
+  --btn-disabled-border: #444;
+  --btn-disabled-text: #666;
 }
 
 html[data-theme="light"] {
@@ -34,6 +46,17 @@ html[data-theme="light"] {
   --button-text-color: #ffffff;
   --chat-background: #b7ffe4;
   --input-bg-color: #ffffff;
+
+  /* Button Colors */
+  --btn-base-bg: #646cff;
+  --btn-base-bg-hover: #535bf2;
+  --btn-cancel-bg: #f9f9f9;
+  --btn-cancel-text: #213547;
+  --btn-cancel-border: #ccc;
+  --btn-cancel-border-hover: #646cff;
+  --btn-disabled-bg: #1a1a1a;
+  --btn-disabled-border: #444;
+  --btn-disabled-text: #666;
 }
 
 a {
