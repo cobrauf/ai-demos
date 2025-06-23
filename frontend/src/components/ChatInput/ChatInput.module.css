@@ -1,0 +1,36 @@
+.container {
+  /* Styles for ChatInput container */
+}
+
+.inputForm {
+  display: flex;
+}
+
+.textInput {
+  flex-grow: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  margin-right: 0.5rem;
+  background-color: var(--button-bg-color);
+  color: var(--text-color);
+}
+
+.sendButton {
+  padding: 0.75rem;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  color: var(--button-text-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sendButton:hover {
+  background-color: var(--accent-color-hover);
+}

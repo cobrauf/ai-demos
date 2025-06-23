@@ -1,0 +1,72 @@
+/* Styles for MysteryItemView */
+
+.viewContainer {
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+  background-color: var(--background-color);
+}
+
+.marginBlocker {
+  flex-grow: 1;
+  background-color: var(--background-color);
+}
+
+.chatContainer {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--chat-background, #f9f9f9); /* Fallback color */
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+}
+
+.topBar {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.topBar h1 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.messageArea {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.inputArea {
+  border-top: 1px solid var(--border-color);
+  padding: 1rem;
+  background-color: var(--background-color);
+  flex-shrink: 0;
+}
+
+.newGameButton {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--button-bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.newGameButton:hover {
+  background-color: var(--background-hover);
+}
+
+/* Simple message styling for now */
+.message {
+  margin-bottom: 1rem;
+}
