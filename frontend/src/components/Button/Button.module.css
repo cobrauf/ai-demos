@@ -21,10 +21,7 @@
 /* When adding a new style, update the string literal in Button.tsx */
 .base {
   background-color: var(--btn-base-bg);
-  color: var(--button-text-color);
-}
-.base:hover {
-  background-color: var(--btn-base-bg-hover);
+  color: var(--btn-text-color);
 }
 
 .cancel {
@@ -32,11 +29,14 @@
   color: var(--btn-cancel-text);
   border-color: var(--btn-cancel-border);
 }
-.cancel:hover {
-  border-color: var(--btn-cancel-border-hover);
+
+.disabled {
+  background-color: var(--btn-disabled-bg);
+  color: var(--btn-disabled-text);
+  cursor: not-allowed;
 }
 
-.gradient {
+/* .gradient {
   background-image: linear-gradient(
     to right,
     var(--btn-base-bg) 0%,
@@ -45,30 +45,20 @@
   );
   transition: 0.5s;
   background-size: 200% auto;
-  color: var(--button-text-color);
+  color: var(--btn-text-color);
   border: none;
 }
 
 .gradient:hover {
   background-position: right center;
-  color: var(--button-text-color);
+  color: var(--btn-text-color);
   text-decoration: none;
-}
+} */
 
 .secondary {
-  width: 100%;
-  border: 1px solid var(--border-color);
-  background-color: var(--btn-base-bg);
-  color: var(--button-text-color);
-}
-:global([data-theme="light"]) .secondary {
-  background-color: var(--btn-base-bg);
-}
-:global([data-theme="dark"]) .secondary {
-  background-color: var(--btn-base-bg);
-}
-.secondary:hover {
-  background-color: var(--background-hover);
+  width: 50%;
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
 }
 
 .icon {
@@ -81,14 +71,6 @@
   border-color: transparent;
 }
 
-.theme {
-  background-color: transparent;
-  color: var(--text-color);
-  text-align: left;
-  border: none;
-}
-/* Selected state for theme is handled by passing a className */
-
 .iconCircle {
   padding: 0.75rem;
   width: 44px;
@@ -96,19 +78,8 @@
   border: none;
   border-radius: 50%;
   background-color: var(--btn-base-bg);
-  color: var(--button-text-color);
+  color: var(--btn-text-color);
   display: flex; /* These are for centering the icon inside */
   align-items: center;
   justify-content: center;
-}
-.iconCircle:hover {
-  background-color: var(--btn-base-bg-hover);
-}
-
-/* --- OTHER MODIFIERS --- */
-.button:disabled {
-  background-color: var(--btn-disabled-bg);
-  border-color: var(--btn-disabled-border);
-  color: var(--btn-disabled-text);
-  cursor: not-allowed;
 }

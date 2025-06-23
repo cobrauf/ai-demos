@@ -28,7 +28,7 @@
 
 .user .bubble {
   background-color: var(--accent-color);
-  color: var(--button-text-color);
+  color: var(--btn-text-color);
   border-bottom-right-radius: 4px;
 }
 
@@ -38,8 +38,8 @@
 }
 
 .loading .bubble {
-  background-color: var(--button-bg-color);
-  color: var(--text-color-secondary, #aaa); /* Fallback color */
+  background-color: var(--button-secondary-color);
+  color: var(--button-secondary-text, #aaa); /* Fallback color */
   font-style: italic;
   border-bottom-left-radius: 4px;
 }

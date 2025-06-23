@@ -4,11 +4,10 @@ import clsx from "clsx";
 
 type ButtonVariant =
   | "base"
-  | "cancel"
-  | "gradient"
   | "secondary"
+  | "cancel"
+  | "disabled"
   | "icon"
-  | "theme"
   | "iconCircle";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

@@ -61,12 +61,12 @@
   transition: background-color 0.2s;
 }
 
-.navLink:hover {
+/* .navLink:hover {
   background-color: var(--background-hover);
-}
+} */
 
 .activeLink {
   background-color: var(--accent-color);
-  color: var(--button-text-color);
+  color: var(--btn-text-color);
   font-weight: bold;
 }
