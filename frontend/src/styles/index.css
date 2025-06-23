@@ -14,7 +14,7 @@
 }
 
 html[data-theme="dark"] {
-  --background-color: #242424;
+  --background: linear-gradient(135deg, #343434 0%, #272727 100%);
   --text-color: rgba(255, 255, 255, 0.87);
   --text-color-secondary: #aaaaaa;
   --button-bg-color: #1a1a1a;
@@ -25,17 +25,17 @@ html[data-theme="dark"] {
 }
 
 html[data-theme="light"] {
-  --background-color: #ffffff;
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --text-color: #213547;
   --text-color-secondary: #555555;
-  --button-bg-color: #f9f9f9;
+  --button-bg-color: #ff2222;
   --button-hover-border-color: #747bff;
   --accent-color: #646cff;
   --accent-color-hover: #747bff;
   --border-color: #e0e0e0;
   --background-hover: #f0f0f0;
   --button-text-color: #ffffff;
-  --chat-background: #f9f9f9;
+  --chat-background: #b7ffe4;
 }
 
 a {
@@ -52,8 +52,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   color: var(--text-color);
-  background-color: var(--background-color);
-  transition: color 0.25s, background-color 0.25s;
+  background: var(--background);
+  /* transition: color 0.25s, background 0.25s; */
 }
 
 h1 {
