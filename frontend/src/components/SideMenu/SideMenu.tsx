@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 import clsx from "clsx";
 import styles from "./SideMenu.module.css";
 
@@ -20,6 +21,25 @@ const SideMenu: React.FC<SideMenuProps> = ({
       <button onClick={onClose} className={styles.closeButton}>
         &times;
       </button>
+
+      <nav className={styles.nav}>
+        <NavLink
+          to="/demos/mystery-item"
+          className={({ isActive }) =>
+            clsx(styles.navLink, { [styles.activeLink]: isActive })
+          }
+        >
+          Mystery Item Game
+        </NavLink>
+        <NavLink
+          to="/demos/placeholder"
+          className={({ isActive }) =>
+            clsx(styles.navLink, { [styles.activeLink]: isActive })
+          }
+        >
+          Placeholder
+        </NavLink>
+      </nav>
 
       {theme && setTheme && (
         <div className={styles.themeSection}>
