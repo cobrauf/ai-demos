@@ -1,27 +1,11 @@
 /* Styles for MysteryItemView */
 
-.viewContainer {
-  display: flex;
-  justify-content: center;
-  height: 100vh;
-  width: 100%;
-  background-color: var(--background-color);
-}
-
-.marginBlocker {
-  flex-grow: 1;
-  background-color: var(--background-color);
-}
-
 .chatContainer {
   width: 100%;
-  max-width: 800px;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background-color: var(--chat-background, #f9f9f9); /* Fallback color */
-  border-left: 1px solid var(--border-color);
-  border-right: 1px solid var(--border-color);
+  height: 100%;
+  background-color: var(--chat-background, #f9f9f9);
 }
 
 .topBar {

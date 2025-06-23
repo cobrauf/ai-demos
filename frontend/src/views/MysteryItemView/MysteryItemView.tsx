@@ -51,26 +51,22 @@ const MysteryItemView: React.FC = () => {
   };
 
   return (
-    <div className={styles.viewContainer}>
-      <div className={styles.marginBlocker}></div>
-      <div className={styles.chatContainer}>
-        <header className={styles.topBar}>
-          <h1>Mystery Item Game</h1>
-        </header>
-        <main className={styles.messageArea} ref={messageAreaRef}>
-          {conversation.map((msg, index) => (
-            <ChatMessage key={index} sender={msg.sender} text={msg.text} />
-          ))}
-          {isLoading && <ChatMessage sender="loading" text="Thinking..." />}
-        </main>
-        <footer className={styles.inputArea}>
-          <button onClick={handleNewGame} className={styles.newGameButton}>
-            New Game
-          </button>
-          <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
-        </footer>
-      </div>
-      <div className={styles.marginBlocker}></div>
+    <div className={styles.chatContainer}>
+      <header className={styles.topBar}>
+        <h1>Mystery Item Game</h1>
+      </header>
+      <main className={styles.messageArea} ref={messageAreaRef}>
+        {conversation.map((msg, index) => (
+          <ChatMessage key={index} sender={msg.sender} text={msg.text} />
+        ))}
+        {isLoading && <ChatMessage sender="loading" text="Thinking..." />}
+      </main>
+      <footer className={styles.inputArea}>
+        <button onClick={handleNewGame} className={styles.newGameButton}>
+          New Game
+        </button>
+        <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+      </footer>
     </div>
   );
 };

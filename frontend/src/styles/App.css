@@ -37,3 +37,11 @@
   backdrop-filter: blur(4px);
   z-index: 999;
 }
+
+.main-content {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  height: 100vh;
+  overflow: auto;
+}

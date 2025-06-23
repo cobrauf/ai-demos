@@ -18,12 +18,12 @@ import MysteryItemView from "./views/MysteryItemView/MysteryItemView";
 import PlaceholderView from "./views/PlaceholderView/PlaceholderView";
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [message, setMessage] = useState(""); //for testing
+  const [count, setCount] = useState(0); //for dev
+  const [message, setMessage] = useState(""); //for dev
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
-  //test button, don't remove during development----------
+  //test button, don't remove during development---------- //for dev
   const handleButtonClick = async () => {
     try {
       setCount((count) => count + 1);
@@ -34,7 +34,7 @@ function App() {
       console.log("Error: ", error);
     }
   };
-  //---------------------------------------------------------
+  //--------------------------------------------------------- //for dev
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -47,7 +47,7 @@ function App() {
   return (
     <Router>
       {import.meta.env.DEV && (
-        <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
+        <StagewiseToolbar config={{ plugins: [ReactPlugin] }} /> //for dev
       )}
       {!isMenuOpen && (
         <div className="menu-trigger" onClick={toggleMenu}>
@@ -64,7 +64,7 @@ function App() {
 
       {isMenuOpen && <div className="overlay" onClick={closeMenu}></div>}
 
-      <div className="main-content">
+      <main className="main-content">
         <Routes>
           <Route
             path="/"
@@ -73,7 +73,7 @@ function App() {
           <Route path="/demos/mystery-item" element={<MysteryItemView />} />
           <Route path="/demos/placeholder" element={<PlaceholderView />} />
         </Routes>
-      </div>
+      </main>
       <Button variant="gradient" onClick={handleButtonClick}>
         Action
       </Button>
