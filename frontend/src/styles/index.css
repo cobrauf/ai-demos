@@ -17,25 +17,23 @@ html[data-theme="dark"] {
   --background: linear-gradient(135deg, #343434 0%, #272727 100%);
   --text-color: rgba(255, 255, 255, 0.87);
   --text-color-secondary: #aaaaaa;
-  --button-bg-color: #1a1a1a;
-  --button-hover-border-color: #646cff;
   --background-hover: #3a3a3a;
   --button-text-color: #ffffff;
   --chat-background: #1e1e1e;
+  --input-bg-color: #2c2c2c;
 }
 
 html[data-theme="light"] {
   --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --text-color: #213547;
   --text-color-secondary: #555555;
-  --button-bg-color: #ff2222;
-  --button-hover-border-color: #747bff;
   --accent-color: #646cff;
   --accent-color-hover: #747bff;
   --border-color: #e0e0e0;
   --background-hover: #f0f0f0;
   --button-text-color: #ffffff;
   --chat-background: #b7ffe4;
+  --input-bg-color: #ffffff;
 }
 
 a {

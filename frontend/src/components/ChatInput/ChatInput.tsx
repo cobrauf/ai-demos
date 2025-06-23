@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styles from "./ChatInput.module.css";
 import SendIcon from "./SendIcon";
+import { Button } from "../Button/Button";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -27,9 +28,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
         onChange={(e) => setInputValue(e.target.value)}
         disabled={isLoading}
       />
-      <button type="submit" className={styles.sendButton} disabled={isLoading}>
+      <Button variant="iconCircle" type="submit" disabled={isLoading}>
         <SendIcon />
-      </button>
+      </Button>
     </form>
   );
 };

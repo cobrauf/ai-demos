@@ -2,6 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import clsx from "clsx";
 import styles from "./SideMenu.module.css";
+import { Button } from "../Button/Button";
 
 interface SideMenuProps {
   isOpen: boolean;
@@ -18,9 +19,9 @@ const SideMenu: React.FC<SideMenuProps> = ({
 }) => {
   return (
     <div className={clsx(styles.menu, { [styles.open]: isOpen })}>
-      <button onClick={onClose} className={styles.closeButton}>
+      <Button variant="icon" onClick={onClose} className={styles.closeButton}>
         &times;
-      </button>
+      </Button>
 
       <nav className={styles.nav}>
         <NavLink
@@ -45,22 +46,24 @@ const SideMenu: React.FC<SideMenuProps> = ({
         <div className={styles.themeSection}>
           <h3>Themes</h3>
           <div className={styles.themeButtons}>
-            <button
-              className={clsx(styles.themeButton, {
+            <Button
+              variant="theme"
+              className={clsx({
                 [styles.selected]: theme === "light",
               })}
               onClick={() => setTheme("light")}
             >
               Light
-            </button>
-            <button
-              className={clsx(styles.themeButton, {
+            </Button>
+            <Button
+              variant="theme"
+              className={clsx({
                 [styles.selected]: theme === "dark",
               })}
               onClick={() => setTheme("dark")}
             >
               Dark
-            </button>
+            </Button>
           </div>
         </div>
       )}

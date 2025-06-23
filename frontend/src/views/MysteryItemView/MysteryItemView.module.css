@@ -22,19 +22,7 @@
 }
 
 .newGameButton {
-  width: 100%;
   margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background-color: var(--button-bg-color);
-  color: var(--text-color);
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.newGameButton:hover {
-  background-color: var(--background-hover);
 }
 
 /* Simple message styling for now */

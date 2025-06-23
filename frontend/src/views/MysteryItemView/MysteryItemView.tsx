@@ -3,6 +3,7 @@ import styles from "./MysteryItemView.module.css";
 import ChatMessage from "../../components/ChatMessage/ChatMessage";
 import ChatInput from "../../components/ChatInput/ChatInput";
 import TopBar from "../../components/TopBar/TopBar";
+import { Button } from "../../components/Button/Button";
 
 const WELCOME_MESSAGE: Message = {
   sender: "ai",
@@ -65,9 +66,13 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         {isLoading && <ChatMessage sender="loading" text="Thinking..." />}
       </main>
       <footer className={styles.inputArea}>
-        <button onClick={handleNewGame} className={styles.newGameButton}>
+        <Button
+          variant="secondary"
+          onClick={handleNewGame}
+          className={styles.newGameButton}
+        >
           New Game
-        </button>
+        </Button>
         <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
       </footer>
     </div>

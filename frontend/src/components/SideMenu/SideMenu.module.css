@@ -19,13 +19,12 @@
 }
 
 .closeButton {
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-size: 24px;
-  cursor: pointer;
+  /* Only positioning styles remain */
   align-self: flex-end;
   margin-bottom: 20px;
+  /* Visual styles are now in Button.module.css */
+  font-size: 24px; /* Keep font-size for the icon */
+  color: var(--text-color); /* Keep color */
 }
 
 .themeSection h3 {
@@ -40,19 +39,8 @@
   flex-direction: column;
 }
 
-.themeButton {
-  background-color: transparent;
-  /* border: 1px solid transparent; */
-  color: var(--text-color);
-  padding: 10px;
-  margin-bottom: 5px;
-  cursor: pointer;
-  text-align: left;
-  border-radius: 5px;
-  font-size: 1em;
-}
-
-.themeButton.selected {
+/* This is now a state class, not a button class */
+.selected {
   font-weight: bold;
   border-left: 3px solid var(--accent-color, #646cff);
   background-color: rgba(100, 108, 255, 0.1);

@@ -2,7 +2,14 @@ import { type ButtonHTMLAttributes } from "react";
 import styles from "./Button.module.css";
 import clsx from "clsx";
 
-type ButtonVariant = "base" | "cancel" | "gradient";
+type ButtonVariant =
+  | "base"
+  | "cancel"
+  | "gradient"
+  | "secondary"
+  | "icon"
+  | "theme"
+  | "iconCircle";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
