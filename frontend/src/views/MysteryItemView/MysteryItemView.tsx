@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styles from "./MysteryItemView.module.css";
 import ChatMessage from "../../components/ChatMessage/ChatMessage";
 import ChatInput from "../../components/ChatInput/ChatInput";
+import TopBar from "../../components/TopBar/TopBar";
 
 const WELCOME_MESSAGE: Message = {
   sender: "ai",
@@ -13,7 +14,11 @@ interface Message {
   text: string;
 }
 
-const MysteryItemView: React.FC = () => {
+interface MysteryItemViewProps {
+  onMenuClick: () => void;
+}
+
+const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
   const [conversation, setConversation] = useState<Message[]>([
     WELCOME_MESSAGE,
   ]);
@@ -52,9 +57,7 @@ const MysteryItemView: React.FC = () => {
 
   return (
     <div className={styles.chatContainer}>
-      <header className={styles.topBar}>
-        <h1>Mystery Item Game</h1>
-      </header>
+      <TopBar title="Mystery Item Game" onMenuClick={onMenuClick} />
       <main className={styles.messageArea} ref={messageAreaRef}>
         {conversation.map((msg, index) => (
           <ChatMessage key={index} sender={msg.sender} text={msg.text} />

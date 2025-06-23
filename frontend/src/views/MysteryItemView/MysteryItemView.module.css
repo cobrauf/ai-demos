@@ -8,19 +8,6 @@
   background-color: var(--chat-background, #f9f9f9);
 }
 
-.topBar {
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--background-color);
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.topBar h1 {
-  font-size: 1.5rem;
-  margin: 0;
-}
-
 .messageArea {
   flex-grow: 1;
   overflow-y: auto;
