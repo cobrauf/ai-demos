@@ -1,8 +1,5 @@
 #root {
-  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
 }
 
 .card {
@@ -23,8 +20,8 @@
 .main-content {
   position: relative;
   width: 100%;
-  max-width: 1280px;
+  max-width: 800px;
   margin: 0 auto;
-  height: 100vh;
+  height: 95vh;
   overflow: auto;
 }
