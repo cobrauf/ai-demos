@@ -47,8 +47,8 @@ function App() {
       <SideMenu
         isOpen={isMenuOpen}
         onClose={closeMenu}
-        theme={theme}
-        setTheme={setTheme}
+        // theme={theme} disable themes for now
+        // setTheme={setTheme}
       />
 
       {isMenuOpen && <div className="overlay" onClick={closeMenu}></div>}

@@ -5,8 +5,8 @@ import styles from "./SideMenu.module.css";
 interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
-  theme: "light" | "dark";
-  setTheme: (theme: "light" | "dark") => void;
+  theme?: "light" | "dark";
+  setTheme?: (theme: "light" | "dark") => void;
 }
 
 const SideMenu: React.FC<SideMenuProps> = ({
@@ -20,27 +20,30 @@ const SideMenu: React.FC<SideMenuProps> = ({
       <button onClick={onClose} className={styles.closeButton}>
         &times;
       </button>
-      <div className={styles.themeSection}>
-        <h3>Themes</h3>
-        <div className={styles.themeButtons}>
-          <button
-            className={clsx(styles.themeButton, {
-              [styles.selected]: theme === "light",
-            })}
-            onClick={() => setTheme("light")}
-          >
-            Light
-          </button>
-          <button
-            className={clsx(styles.themeButton, {
-              [styles.selected]: theme === "dark",
-            })}
-            onClick={() => setTheme("dark")}
-          >
-            Dark
-          </button>
+
+      {theme && setTheme && (
+        <div className={styles.themeSection}>
+          <h3>Themes</h3>
+          <div className={styles.themeButtons}>
+            <button
+              className={clsx(styles.themeButton, {
+                [styles.selected]: theme === "light",
+              })}
+              onClick={() => setTheme("light")}
+            >
+              Light
+            </button>
+            <button
+              className={clsx(styles.themeButton, {
+                [styles.selected]: theme === "dark",
+              })}
+              onClick={() => setTheme("dark")}
+            >
+              Dark
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
