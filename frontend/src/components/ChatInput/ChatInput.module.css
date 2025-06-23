@@ -1,0 +1,17 @@
+.container {
+  /* Styles for ChatInput container */
+}
+
+.inputForm {
+  display: flex;
+}
+
+.textInput {
+  flex-grow: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  margin-right: 0.5rem;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+}

@@ -3,66 +3,65 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --accent-color: #646cff;
+  --accent-color-hover: #535bf2;
+  --border-color: #3d3d3d;
+
+  /* Button Colors */
+  --btn-base-bg: #646cff;
+  --btn-text-color: #ffffff;
+
+  --btn-secondary-bg: #c600e0;
+  --btn-secondary-text: #ffffff;
+
+  --btn-cancel-bg: #f9f9f9;
+  --btn-cancel-text: #213547;
+
+  --btn-disabled-bg: #1a1a1a;
+  --btn-disabled-text: #666;
+}
+
+html[data-theme="dark"] {
+  --background: linear-gradient(135deg, #343434 0%, #272727 100%);
+  --text-color: rgba(255, 255, 255, 0.87);
+  --text-color-secondary: #aaaaaa;
+  --background-hover: #3a3a3a;
+  --chat-background: #1e1e1e;
+  --input-bg-color: #2c2c2c;
+}
+
+html[data-theme="light"] {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --text-color: #213547;
+  --text-color-secondary: #555555;
+  --background-hover: #f0f0f0;
+  --chat-background: #d6d6d6;
+  --input-bg-color: #ffffff;
 }
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: var(--accent-color);
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--accent-color-hover);
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: var(--text-color);
+  background: var(--background);
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  body {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }

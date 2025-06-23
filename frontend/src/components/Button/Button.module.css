@@ -20,45 +20,66 @@
 /* --- VARIANT STYLES --- */
 /* When adding a new style, update the string literal in Button.tsx */
 .base {
-  background-color: #646cff;
-  color: white;
-}
-.base:hover {
-  background-color: #535bf2;
+  background-color: var(--btn-base-bg);
+  color: var(--btn-text-color);
 }
 
 .cancel {
-  background-color: #f9f9f9;
-  color: #213547;
-  border-color: #ccc;
-}
-.cancel:hover {
-  border-color: #646cff;
+  background-color: var(--btn-cancel-bg);
+  color: var(--btn-cancel-text);
+  border-color: var(--btn-cancel-border);
 }
 
-.gradient {
+.disabled {
+  background-color: var(--btn-disabled-bg);
+  color: var(--btn-disabled-text);
+  cursor: not-allowed;
+}
+
+/* .gradient {
   background-image: linear-gradient(
     to right,
-    #ff6e7f 0%,
-    #bfe9ff 51%,
-    #ff6e7f 100%
+    var(--btn-base-bg) 0%,
+    var(--btn-base-bg-hover) 51%,
+    var(--btn-base-bg) 100%
   );
   transition: 0.5s;
   background-size: 200% auto;
-  color: white;
+  color: var(--btn-text-color);
   border: none;
 }
 
 .gradient:hover {
   background-position: right center;
-  color: #fff;
+  color: var(--btn-text-color);
   text-decoration: none;
+} */
+
+.secondary {
+  width: 50%;
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
 }
 
-/* --- OTHER MODIFIERS --- */
-.button:disabled {
-  background-color: #1a1a1a;
-  border-color: #444;
-  color: #666;
-  cursor: not-allowed;
+.icon {
+  background: none;
+  border: none;
+  padding: 0; /* Override default padding */
+}
+.icon:hover {
+  /* No hover effect unless specified by parent */
+  border-color: transparent;
+}
+
+.iconCircle {
+  padding: 0.75rem;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--btn-base-bg);
+  color: var(--btn-text-color);
+  display: flex; /* These are for centering the icon inside */
+  align-items: center;
+  justify-content: center;
 }

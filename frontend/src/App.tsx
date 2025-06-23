@@ -1,15 +1,29 @@
-import { StagewiseToolbar } from "@stagewise/toolbar-react";
-import { ReactPlugin } from "@stagewise-plugins/react";
+import { StagewiseToolbar } from "@stagewise/toolbar-react"; //for dev
+import { ReactPlugin } from "@stagewise-plugins/react"; //for dev
+import { fetchRoot } from "./services/api"; //for dev
+import { Button } from "./components/Button/Button"; //for dev
+//Don't remove above imports during development
+
 import { useState } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import "./styles/App.css";
-import { fetchRoot } from "./services/api";
-import { Button } from "./components/Button/Button";
+import SideMenu from "./components/SideMenu/SideMenu";
+import { useTheme } from "./hooks/useTheme";
+import MysteryItemView from "./views/MysteryItemView/MysteryItemView";
+import PlaceholderView from "./views/PlaceholderView/PlaceholderView";
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [message, setMessage] = useState(""); //for testing
+  const [count, setCount] = useState(0); //for dev
+  const [message, setMessage] = useState(""); //for dev
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
-  //test button
+  //test button, don't remove during development---------- //for dev
   const handleButtonClick = async () => {
     try {
       setCount((count) => count + 1);
@@ -20,20 +34,52 @@ function App() {
       console.log("Error: ", error);
     }
   };
+  //--------------------------------------------------------- //for dev
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
 
   return (
-    <>
-      {import.meta.env.DEV && (
-        <StagewiseToolbar config={{ plugins: [ReactPlugin] }} />
-      )}
-      <div className="card">
-        <Button variant="gradient" onClick={handleButtonClick}>
-          Root
-        </Button>
-        <p>Count is {count}</p>
-        <p>{message}</p>
-      </div>
-    </>
+    <Router>
+      {/* {import.meta.env.DEV && (
+        <StagewiseToolbar config={{ plugins: [ReactPlugin] }} /> //for dev
+      )} */}
+      <main className="main-content">
+        <SideMenu
+          isOpen={isMenuOpen}
+          onClose={closeMenu}
+          theme={theme}
+          setTheme={setTheme}
+        />
+
+        {isMenuOpen && <div className="overlay" onClick={closeMenu}></div>}
+
+        <Routes>
+          <Route
+            path="/"
+            element={<Navigate to="/demos/mystery-item" replace />}
+          />
+          <Route
+            path="/demos/mystery-item"
+            element={<MysteryItemView onMenuClick={toggleMenu} />}
+          />
+          <Route
+            path="/demos/placeholder"
+            element={<PlaceholderView onMenuClick={toggleMenu} />}
+          />
+        </Routes>
+      </main>
+      <Button variant="gradient" onClick={handleButtonClick}>
+        Action
+      </Button>
+      <p>Count is {count}</p>
+      <p>{message}</p>
+    </Router>
   );
 }
 

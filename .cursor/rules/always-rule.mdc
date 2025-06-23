@@ -5,5 +5,6 @@ alwaysApply: true
 ---
 [ProjectDoc.md](mdc:docs/ProjectDoc.md) always refer to this file for project structure.
 Don't remove comments.
+IMPORTANT. Don't remove code that's for dev/testing/debugging purposes, especially lines with // for dev comments
 
 
