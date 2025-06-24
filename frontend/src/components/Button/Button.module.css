@@ -9,10 +9,17 @@
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: border-color 0.25s, background-color 0.25s;
+  transition: border-color 0.25s, background-color 0.25s, transform 0.1s;
 }
 
-.button:focus,
+.button:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.button:focus {
+  outline: none;
+}
+
 .button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
@@ -27,7 +34,6 @@
 .cancel {
   background-color: var(--btn-cancel-bg);
   color: var(--btn-cancel-text);
-  border-color: var(--btn-cancel-border);
 }
 
 .disabled {
@@ -47,10 +53,6 @@
   border: none;
   padding: 0; /* Override default padding */
 }
-.icon:hover {
-  /* No hover effect unless specified by parent */
-  border-color: transparent;
-}
 
 .iconCircle {
   padding: 0.75rem;
@@ -63,4 +65,23 @@
   display: flex; /* These are for centering the icon inside */
   align-items: center;
   justify-content: center;
+}
+
+@media (hover: hover) {
+  .base:not(:disabled):hover {
+    background-color: var(--btn-base-bg-hover);
+  }
+  .cancel:not(:disabled):hover {
+    background-color: var(--btn-cancel-bg-hover);
+  }
+  .secondary:not(:disabled):hover {
+    background-color: var(--btn-secondary-bg-hover);
+  }
+  .icon:hover {
+    /* No hover effect unless specified by parent */
+    border-color: transparent;
+  }
+  .iconCircle:not(:disabled):hover {
+    background-color: var(--btn-base-bg-hover);
+  }
 }

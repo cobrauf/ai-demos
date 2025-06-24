@@ -67,12 +67,17 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
       </main>
       <footer className={styles.inputArea}>
         <Button
-          variant="secondary"
+          variant="base"
           onClick={handleNewGame}
           className={styles.newGameButton}
         >
-          New Game
+          base
         </Button>
+        <Button variant="secondary">secondary</Button>
+        <Button variant="cancel">cancel</Button>
+        <Button variant="disabled">disabled</Button>
+        <Button variant="icon">icon</Button>
+        <Button variant="iconCircle">iconCircle</Button>
         <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
       </footer>
     </div>
