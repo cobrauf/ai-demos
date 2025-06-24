@@ -21,7 +21,7 @@
 /* When adding a new style, update the string literal in Button.tsx */
 .base {
   background-color: var(--btn-base-bg);
-  color: var(--btn-text-color);
+  color: var(--btn-base-text);
 }
 
 .cancel {
@@ -35,25 +35,6 @@
   color: var(--btn-disabled-text);
   cursor: not-allowed;
 }
-
-/* .gradient {
-  background-image: linear-gradient(
-    to right,
-    var(--btn-base-bg) 0%,
-    var(--btn-base-bg-hover) 51%,
-    var(--btn-base-bg) 100%
-  );
-  transition: 0.5s;
-  background-size: 200% auto;
-  color: var(--btn-text-color);
-  border: none;
-}
-
-.gradient:hover {
-  background-position: right center;
-  color: var(--btn-text-color);
-  text-decoration: none;
-} */
 
 .secondary {
   width: 50%;
@@ -78,7 +59,7 @@
   border: none;
   border-radius: 50%;
   background-color: var(--btn-base-bg);
-  color: var(--btn-text-color);
+  color: var(--btn-base-text);
   display: flex; /* These are for centering the icon inside */
   align-items: center;
   justify-content: center;

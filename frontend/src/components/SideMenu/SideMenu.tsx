@@ -47,7 +47,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
           <h3>Themes</h3>
           <div className={styles.themeButtons}>
             <Button
-              variant="theme"
+              variant="secondary"
               className={clsx({
                 [styles.selected]: theme === "light",
               })}
@@ -56,7 +56,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
               Light
             </Button>
             <Button
-              variant="theme"
+              variant="secondary"
               className={clsx({
                 [styles.selected]: theme === "dark",
               })}

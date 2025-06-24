@@ -28,7 +28,7 @@
 
 .user .bubble {
   background-color: var(--accent-color);
-  color: var(--btn-text-color);
+  color: var(--btn-base-text);
   border-bottom-right-radius: 4px;
 }
 

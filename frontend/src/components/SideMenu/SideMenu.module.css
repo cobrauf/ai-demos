@@ -67,6 +67,6 @@
 
 .activeLink {
   background-color: var(--accent-color);
-  color: var(--btn-text-color);
+  color: var(--btn-base-text);
   font-weight: bold;
 }

@@ -74,7 +74,7 @@ function App() {
           />
         </Routes>
       </main>
-      <Button variant="gradient" onClick={handleButtonClick}>
+      <Button variant="secondary" onClick={handleButtonClick}>
         Action
       </Button>
       <p>Count is {count}</p>
