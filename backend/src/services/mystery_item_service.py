@@ -36,6 +36,17 @@ graph = StateGraph(AgentState)
 graph.add_node("agent", node_agent)
 graph.set_entry_point("agent")
 graph.add_edge("agent", END)
+app = graph.compile()
+
+# output to a png
+graph_png_bytes = app.get_graph().draw_mermaid_png()
+output_filename = "./services/mystery_item_graph.png"
+try:
+    with open(output_filename, "wb") as f:
+        f.write(graph_png_bytes)
+    print(f"Graph saved successfully to {output_filename}")
+except IOError as e:
+    print(f"Error saving graph to file: {e}")
 
 
 # if __name__ == "__main__":
