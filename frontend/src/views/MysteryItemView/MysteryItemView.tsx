@@ -12,6 +12,7 @@ const WELCOME_MESSAGE: Message = {
 };
 
 interface Message {
+  id?: string;
   sender: "ai" | "user";
   text: string;
 }
@@ -37,29 +38,40 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
   const handleSendMessage = async (text: string) => {
     if (isLoading) return;
 
-    const userMessage: Message = { sender: "user", text };
-    setConversation((prev) => [...prev, userMessage]);
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      sender: "user",
+      text,
+    };
+    const aiLoadingMessage: Message = {
+      id: `ai-${Date.now()}`,
+      sender: "ai",
+      text: "...",
+    };
+
+    setConversation((prev) => [...prev, userMessage, aiLoadingMessage]);
     setIsLoading(true);
 
     try {
-      const response = await invokeMysteryItem("test_session", text); // for dev
-      const aiMessage =
+      const response = await invokeMysteryItem("test_session", text);
+      const aiMessageText =
         response?.message_history?.[0]?.content ??
         "Sorry, I didn't get a valid response. Please try again.";
-      const aiResponse: Message = {
-        sender: "ai",
-        text: aiMessage,
-      };
-      setConversation((prev) => [...prev, aiResponse]);
+
+      setConversation((prev) =>
+        prev.map((msg) =>
+          msg.id === aiLoadingMessage.id ? { ...msg, text: aiMessageText } : msg
+        )
+      );
     } catch (error) {
       console.error("Failed to get AI response: ", error);
-      setConversation((prev) => [
-        ...prev,
-        {
-          sender: "ai",
-          text: "I'm having trouble connecting to my brain right now. Please try again in a moment.",
-        },
-      ]);
+      const errorMessage =
+        "I'm having trouble connecting to my brain right now. Please try again in a moment.";
+      setConversation((prev) =>
+        prev.map((msg) =>
+          msg.id === aiLoadingMessage.id ? { ...msg, text: errorMessage } : msg
+        )
+      );
     } finally {
       setIsLoading(false);
     }
@@ -75,9 +87,12 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
       <TopBar title="Mystery Item Game" onMenuClick={onMenuClick} />
       <main className={styles.messageArea} ref={messageAreaRef}>
         {conversation.map((msg, index) => (
-          <ChatMessage key={index} sender={msg.sender} text={msg.text} />
+          <ChatMessage
+            key={msg.id || index}
+            sender={msg.sender}
+            text={msg.text}
+          />
         ))}
-        {isLoading && <ChatMessage sender="loading" text="Thinking..." />}
         {/* <Button variant="base">base</Button> */}
         {/* <Button variant="secondary">secondary</Button> */}
         {/* <Button variant="cancel">cancel</Button> */}

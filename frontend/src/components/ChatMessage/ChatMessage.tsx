@@ -1,6 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import styles from "./ChatMessage.module.css";
+import { useTheme } from "../../hooks/useTheme";
 
 interface ChatMessageProps {
   sender: "ai" | "user" | "loading";
@@ -8,15 +9,27 @@ interface ChatMessageProps {
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ sender, text }) => {
+  const isLoading = sender === "ai" && text === "...";
+
   return (
     <div
       className={clsx(styles.messageContainer, {
         [styles.ai]: sender === "ai",
         [styles.user]: sender === "user",
-        [styles.loading]: sender === "loading",
+        [styles.loading]: isLoading,
       })}
     >
-      <div className={styles.bubble}>{text}</div>
+      <div className={styles.bubble}>
+        {isLoading ? (
+          <div className={styles.dots}>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        ) : (
+          text
+        )}
+      </div>
     </div>
   );
 };
