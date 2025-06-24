@@ -28,7 +28,7 @@ def chat_mystery_item(request: ChatRequest):
 def invoke_mystery_item(request: ChatRequest):
     result = mystery_item_service.invoke_mystery_item_graph({
         "session_id": request.session_id,
-        "message_history": [HumanMessage(content=request.message)]
+        "messages": [HumanMessage(content=request.message)]
     })
     logger.info(f"--- result from mystery-item invoke ---")
     logger.info(f"result: {result}")

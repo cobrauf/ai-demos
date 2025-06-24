@@ -15,21 +15,20 @@ from langgraph.prebuilt import ToolNode
 
 logger = logging.getLogger(__name__)
 
-#for general chat ---------------------
-def general_chat(chat_message: list[HumanMessage]) -> str:
+@tool
+def general_chat_tool(user_message: str) -> str:
+    """Use this tool for conversational messages, for example if the user says hello, or asks a question that is not related to the game."""
     system_message = SystemMessage(content='''
     You are a helpful assistant. Respond in concise and friendly matter, no more than 100 words.
     ''')
  
-    logger.info(f"--- general chat ---")
-    logger.info(f"chat_message: {chat_message}")
-    prompt = [system_message] + chat_message
+    logger.info(f"--- general_chat_tool ---")
+    logger.info(f"user_message: {user_message}")
+    prompt = [system_message, HumanMessage(content=user_message)]
     response = llm.invoke(prompt)
-    logger.info(f"--- response.content ---") 
+    logger.info(f"--- general_chat_tool response.content ---") 
     logger.info(f"response.content: {response.content}")
     return response.content
-#-------------------------------------
-
 
 class AgentState(TypedDict):
     session_id: str
@@ -38,10 +37,10 @@ class AgentState(TypedDict):
     guess_correct: str | None = None
     question_count: int = 0
     guess_count: int = 0
-    message_history: Annotated[Sequence[BaseMessage], add_messages]
+    messages: Annotated[Sequence[BaseMessage], add_messages]
     
 @tool
-def generate_mystery_item(state: AgentState) -> AgentState:
+def generate_mystery_item() -> dict:
     '''Generate a mystery item for a guess-the-thing game.'''
     
     system_message = SystemMessage(content='''
@@ -52,7 +51,6 @@ def generate_mystery_item(state: AgentState) -> AgentState:
     # prompt = [system_message]
     response = llm.invoke([system_message])
     logger.info(f"--- generate_mystery_item ---")
-    logger.info(f"state: {state}")
     logger.info(f"response: {response}")
     logger.info(f"--- generate_mystery_item response.content ---")
     logger.info(response.content)
@@ -77,7 +75,7 @@ def check_guess(state: AgentState) -> AgentState:
     logger.info(response.content)
     return {"guess_correct": response.content}
 
-tools = [generate_mystery_item, check_guess]
+tools = [generate_mystery_item, check_guess, general_chat_tool]
 tool_node = ToolNode(tools)
 llm_w_tools = llm.bind_tools(tools)
 
@@ -87,13 +85,21 @@ def node_agent(state: AgentState) -> AgentState:
     You are a friendly host of a Mystery Item Game. 
     The goal of the game is for the user to guess the mystery item.
     The user has a limited number of questions to ask you, and a limited number of attempts to guess the item.
+
+    You have the following tools to help you:
+    - `generate_mystery_item`: Call this to start the game and get a new item.
+    - `check_guess`: Call this when the user tries to guess the item.
+    - `general_chat_tool`: Call this for any conversational messages that are not part of the game.
     '''
-    
+     
     # if state.get("mystery_item") is None:
     #     system_message_content += "\nThere is no mystery item yet. Your job is to generate one now by calling the `generate_mystery_item` tool."
-    
+    # else:
+    #     system_message_content += f"\nThe mystery item has been set. The user can now ask yes/no questions or try to guess it. Do not reveal the item: {state['mystery_item']}"
+     
     system_message = SystemMessage(content=system_message_content)
-    messages = [system_message] + state["message_history"]
+    
+    messages = [system_message] + state["messages"]
     
     logger.info(f"--- agent node ---")
     logger.info(f"state: {state}")
@@ -101,11 +107,11 @@ def node_agent(state: AgentState) -> AgentState:
     response = llm_w_tools.invoke(messages)
     logger.info(f"--- agent response ---")
     logger.info(response)
-    return {"message_history": [response]}
+    return {"messages": [response]}
 
 
 def router(state: AgentState) -> str:
-    last_message = state["message_history"][-1]
+    last_message = state["messages"][-1]
     if last_message.tool_calls:
         return "tool_node"
     return END
