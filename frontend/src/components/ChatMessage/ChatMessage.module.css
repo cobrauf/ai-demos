@@ -8,6 +8,7 @@
   border-radius: 18px;
   max-width: 70%;
   word-wrap: break-word;
+  font-size: 1.5rem;
 }
 
 /* AI message styles (left-aligned) */
@@ -16,8 +17,8 @@
 }
 
 .ai .bubble {
-  background-color: var(--button-bg-color);
-  color: var(--text-color);
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
   border-bottom-left-radius: 4px;
 }
 

@@ -41,7 +41,7 @@ html[data-theme="dark"] {
 
 html[data-theme="light"] {
   --background: linear-gradient(135deg, #7b87bd 0%, #9175ad 100%);
-  --text-color: #213547;
+  --text-color: #474747;
   --text-color-secondary: #555555;
   --background-hover: #f0f0f0;
   --chat-background: linear-gradient(135deg, #e1e9ff 0%, #fdd8ea 100%);

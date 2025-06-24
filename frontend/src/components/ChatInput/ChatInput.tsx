@@ -54,7 +54,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         ref={textareaRef}
         rows={1}
         className={styles.textInput}
-        placeholder="Type your guess..."
+        placeholder=""
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
