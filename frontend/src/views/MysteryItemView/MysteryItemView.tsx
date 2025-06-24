@@ -64,8 +64,6 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
           <ChatMessage key={index} sender={msg.sender} text={msg.text} />
         ))}
         {isLoading && <ChatMessage sender="loading" text="Thinking..." />}
-      </main>
-      <footer className={styles.inputArea}>
         <Button
           variant="base"
           onClick={handleNewGame}
@@ -78,7 +76,13 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         {/* <Button variant="disabled">disabled</Button> */}
         {/* <Button variant="icon">icon</Button> */}
         {/* <Button variant="iconCircle">iconCircle</Button> */}
-        <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+      </main>
+      <footer className={styles.inputArea}>
+        <ChatInput
+          onSendMessage={handleSendMessage}
+          onNewGame={handleNewGame}
+          isLoading={isLoading}
+        />
       </footer>
     </div>
   );

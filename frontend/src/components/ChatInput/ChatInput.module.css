@@ -8,10 +8,19 @@
 
 .textInput {
   flex-grow: 1;
-  padding: 0.75rem;
+  padding: 1.5rem 0.75rem;
   border: 1px solid var(--border-color);
   border-radius: 20px;
   margin-right: 0.5rem;
   background-color: var(--input-bg-color);
   color: var(--text-color);
+}
+.textInput:focus {
+  outline: 1px solid var(--accent-color);
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
