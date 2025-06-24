@@ -59,7 +59,7 @@ const SideMenu: React.FC<SideMenuProps> = ({
         {demosOpen && (
           <div className={styles.dropdownContent}>
             <Toggle
-              label="Mystery"
+              label="Mystery Item"
               to="/demos/mystery-item"
               active={location.pathname === "/demos/mystery-item"}
               //   onClick={onClose}

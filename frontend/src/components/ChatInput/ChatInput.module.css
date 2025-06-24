@@ -14,6 +14,10 @@
   margin-right: 0.5rem;
   background-color: var(--input-bg-color);
   color: var(--text-color);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  resize: none;
+  overflow: hidden;
 }
 .textInput:focus {
   outline: 1px solid var(--accent-color);
