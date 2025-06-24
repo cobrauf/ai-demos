@@ -75,9 +75,9 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         </Button>
         <Button variant="secondary">secondary</Button>
         <Button variant="cancel">cancel</Button>
-        <Button variant="disabled">disabled</Button>
-        <Button variant="icon">icon</Button>
-        <Button variant="iconCircle">iconCircle</Button>
+        {/* <Button variant="disabled">disabled</Button> */}
+        {/* <Button variant="icon">icon</Button> */}
+        {/* <Button variant="iconCircle">iconCircle</Button> */}
         <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
       </footer>
     </div>

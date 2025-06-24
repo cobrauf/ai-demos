@@ -31,6 +31,11 @@
   color: var(--btn-base-text);
 }
 
+.secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+}
+
 .cancel {
   background-color: var(--btn-cancel-bg);
   color: var(--btn-cancel-text);
@@ -42,16 +47,10 @@
   cursor: not-allowed;
 }
 
-.secondary {
-  width: 50%;
-  background-color: var(--btn-secondary-bg);
-  color: var(--btn-secondary-text);
-}
-
 .icon {
   background: none;
-  border: none;
-  padding: 0; /* Override default padding */
+  /* border: none; */
+  padding: 0;
 }
 
 .iconCircle {

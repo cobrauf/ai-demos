@@ -10,7 +10,7 @@
 
   --accent-color: #646cff;
   --accent-color-hover: #535bf2;
-  --border-color: #3d3d3d;
+  --border-color: #dbdada;
 
   /* Button Colors */
   --btn-base-bg: #646cff;
@@ -35,16 +35,16 @@ html[data-theme="dark"] {
   --text-color: rgba(255, 255, 255, 0.87);
   --text-color-secondary: #aaaaaa;
   --background-hover: #3a3a3a;
-  --chat-background: #1e1e1e;
+  --chat-background: linear-gradient(135deg, #5e5e5e 0%, #464646 100%);
   --input-bg-color: #2c2c2c;
 }
 
 html[data-theme="light"] {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --background: linear-gradient(135deg, #7b87bd 0%, #9175ad 100%);
   --text-color: #213547;
   --text-color-secondary: #555555;
   --background-hover: #f0f0f0;
-  --chat-background: #d6d6d6;
+  --chat-background: linear-gradient(135deg, #e1e9ff 0%, #fdd8ea 100%);
   --input-bg-color: #ffffff;
 }
 

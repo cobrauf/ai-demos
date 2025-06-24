@@ -18,12 +18,9 @@ import MysteryItemView from "./views/MysteryItemView/MysteryItemView";
 import PlaceholderView from "./views/PlaceholderView/PlaceholderView";
 
 function App() {
+  //test button, don't remove during development---------- //for dev
   const [count, setCount] = useState(0); //for dev
   const [message, setMessage] = useState(""); //for dev
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
-
-  //test button, don't remove during development---------- //for dev
   const handleButtonClick = async () => {
     try {
       setCount((count) => count + 1);
@@ -35,6 +32,9 @@ function App() {
     }
   };
   //--------------------------------------------------------- //for dev
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -74,11 +74,11 @@ function App() {
           />
         </Routes>
       </main>
-      <Button variant="secondary" onClick={handleButtonClick}>
+      {/* <Button variant="secondary" onClick={handleButtonClick}>
         Action
       </Button>
       <p>Count is {count}</p>
-      <p>{message}</p>
+      <p>{message}</p> */}
     </Router>
   );
 }

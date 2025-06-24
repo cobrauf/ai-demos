@@ -4,7 +4,7 @@
   left: 0;
   height: 100%;
   width: 250px;
-  background-color: var(--chat-background);
+  background: var(--chat-background);
   /* border-right: 1px solid var(--border-color, #333); */
   padding: 20px;
   transform: translateX(-100%);
