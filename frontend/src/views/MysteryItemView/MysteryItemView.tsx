@@ -4,6 +4,7 @@ import ChatMessage from "../../components/ChatMessage/ChatMessage";
 import ChatInput from "../../components/ChatInput/ChatInput";
 import TopBar from "../../components/TopBar/TopBar";
 import { Button } from "../../components/Button/Button";
+import { invokeMysteryItem } from "../../services/api";
 
 const WELCOME_MESSAGE: Message = {
   sender: "ai",
@@ -39,6 +40,8 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     const userMessage: Message = { sender: "user", text };
     setConversation((prev) => [...prev, userMessage]);
     setIsLoading(true);
+
+    invokeMysteryItem("test_session", text); // for dev
 
     // Simulate API response
     setTimeout(() => {

@@ -19,3 +19,14 @@ export const fetchRoot = async (): Promise<{ [key: string]: string }> => {
   const response = await api.get("/");
   return response.data;
 };
+
+export const invokeMysteryItem = async (
+  session_id: string,
+  message: string
+) => {
+  const response = await api.post("/mystery-item/invoke", {
+    session_id,
+    message,
+  });
+  return response.data;
+};
