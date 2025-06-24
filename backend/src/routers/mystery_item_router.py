@@ -16,7 +16,7 @@ class ChatRequest(BaseModel):
     message: str
     
     
-@router.post("") # for general chat
+@router.post("/") # for general chat
 def chat_mystery_item(request: ChatRequest):
     chat_message = HumanMessage(content=request.message)    
     result = mystery_item_service.general_chat([chat_message])
