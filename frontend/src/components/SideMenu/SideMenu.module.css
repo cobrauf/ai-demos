@@ -70,3 +70,38 @@
   color: var(--btn-base-text);
   font-weight: bold;
 }
+
+/* .sideMenu a:hover {
+  text-decoration: underline;
+} */
+
+.dropdownSection {
+  margin-bottom: 1rem;
+}
+
+.dropdownHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: bold;
+  user-select: none;
+}
+
+/* .dropdownHeader:hover {
+  background-color: var(--hover-color);
+} */
+
+.arrow {
+  transition: transform 0.2s ease-in-out;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
+}
+
+.dropdownContent {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
