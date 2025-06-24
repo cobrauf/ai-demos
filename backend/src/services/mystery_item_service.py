@@ -8,11 +8,14 @@ from typing import Annotated, TypedDict, Sequence
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, END
+from langchain_core.tools import tool
+from langgraph.prebuilt import ToolNode
+
 
 
 logger = logging.getLogger(__name__)
 
-#for general chat
+#for general chat ---------------------
 def general_chat(chat_message: list[HumanMessage]) -> str:
     system_message = SystemMessage(content='''
     You are a helpful assistant. Respond in concise and friendly matter, no more than 100 words.
@@ -25,20 +28,52 @@ def general_chat(chat_message: list[HumanMessage]) -> str:
     logger.info(f"--- response.content ---") 
     logger.info(f"response.content: {response.content}")
     return response.content
+#-------------------------------------
 
 
 class AgentState(TypedDict):
     session_id: str
+    mystery_item: str | None = None
+    question_count: int = 0
+    guess_count: int = 0
     message_history: Annotated[Sequence[BaseMessage], add_messages]
+    
+# @tool
+def generate_mystery_item(state: AgentState) -> AgentState:
+    system_message = SystemMessage(content='''
+    You are a helpful assistant, your only job is to generate a mystery "answer" for a guess-the-thing game. 
+    Choose from the following categories: things, places, or people.
+    Your response will only include the mystery item and should be a single word or short phrase of no more than 50 characters.
+    ''')
+    # prompt = [system_message]
+    response = llm.invoke([system_message])
+    logger.info(f"--- generate_mystery_item ---")
+    logger.info(f"state: {state}")
+    logger.info(f"response: {response}")
+    logger.info(f"--- response.content ---")
+    logger.info(response.content)
+    return {"mystery_item": response.content}
+
 
 def node_agent(state: AgentState) -> AgentState:
-    '''
-    Orchestrate flow of Mystery Item Game:
-    - User chooses a category (eg, "things", "places", "people", or "custom").
-    - Agent generates a mystery item that is the answer.
-    - User has some number of questions to ask the agent, the agent responds with "yes", "no", or "irrelevant".
-    - User has some number of attempts to guess the item, the agent provides feedback on each guess.
-    '''
+    system_message = SystemMessage(content='''
+    You are a friendly host of a Mystery Item Game. The goal of the game is for the user to guess the mystery item.
+    The user has a limited number of questions to ask you, and a limited number of attempts to guess the item.
+    The mystery item is: {state['mystery_item']}. You have the following responsibilities:
+    - If there is no mystery item, you should generate one, choose from the following categories: things, places, or people.
+    - If there is a mystery item chosen, you should respond to the user's chat message.
+    - If the user asks a question, you should respond with "yes", "no", or "irrelevant".
+    - If the user asks a question, you should respond with "yes", "no", or "irrelevant".
+    - If the user asks a question, you should respond with "yes", "no", or "irrelevant".
+    ''')
+    # '''
+    # Orchestrate flow of Mystery Item Game:
+    # - User chooses a category (eg, "things", "places", "people", or "custom").
+    # - Agent generates a mystery item that is the answer.
+    # - User has some number of questions to ask the agent, the agent responds with "yes", "no", or "irrelevant".
+    # - User has some number of attempts to guess the item, the agent provides feedback on each guess.
+    # '''
+    
     # make above a system message
     logger.info(f"--- message history start ---")
     logger.info(f"state: {state}")
@@ -48,11 +83,22 @@ def node_agent(state: AgentState) -> AgentState:
     logger.info(response.content)
     return {"message_history": [response]}
 
+
+
+
 graph = StateGraph(AgentState)
-graph.add_node("agent", node_agent)
-graph.set_entry_point("agent")
-graph.add_edge("agent", END)
+# graph.add_node("agent", node_agent)
+graph.add_node("test_tool_generate", generate_mystery_item)
+graph.set_entry_point("test_tool_generate")
+graph.add_edge("test_tool_generate", END)
 app = graph.compile()
+
+def invoke_mystery_item_graph(state: AgentState) -> AgentState:
+    logger.info(f"--- invoke_graph ---")
+    response = app.invoke(state)
+    logger.info(f"--- response ---")
+    logger.info(response)
+    return state
 
 # output to a png
 # graph_png_bytes = app.get_graph().draw_mermaid_png()

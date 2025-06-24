@@ -20,11 +20,19 @@ export const fetchRoot = async (): Promise<{ [key: string]: string }> => {
   return response.data;
 };
 
-export const invokeMysteryItem = async (
+export const chatMysteryItem = async (session_id: string, message: string) => {
+  const response = await api.post("/mystery-item/", {
+    session_id,
+    message,
+  });
+  return response.data;
+};
+
+export const invokeMysteryItemGraph = async (
   session_id: string,
   message: string
 ) => {
-  const response = await api.post("/mystery-item/", {
+  const response = await api.post("/mystery-item/invoke", {
     session_id,
     message,
   });

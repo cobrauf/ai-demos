@@ -26,11 +26,11 @@ def chat_mystery_item(request: ChatRequest):
 
 @router.post("/invoke")
 def invoke_mystery_item(request: ChatRequest):
-    result = mystery_item_service.app.invoke({
+    result = mystery_item_service.invoke_mystery_item_graph({
         "session_id": request.session_id,
         "message_history": [HumanMessage(content=request.message)]
     })
     logger.info(f"--- result from mystery-item invoke ---")
-    logger.info(AIMessage(content=result))
+    logger.info(f"result: {result}")
     return result
 

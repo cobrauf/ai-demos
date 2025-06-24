@@ -4,7 +4,7 @@ import ChatMessage from "../../components/ChatMessage/ChatMessage";
 import ChatInput from "../../components/ChatInput/ChatInput";
 import TopBar from "../../components/TopBar/TopBar";
 import { Button } from "../../components/Button/Button";
-import { invokeMysteryItem } from "../../services/api";
+import { chatMysteryItem, invokeMysteryItemGraph } from "../../services/api";
 
 const WELCOME_MESSAGE: Message = {
   sender: "ai",
@@ -53,7 +53,47 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     setIsLoading(true);
 
     try {
-      const response = await invokeMysteryItem("test_session", text);
+      const response = await chatMysteryItem("test_session", text);
+      const aiMessageText =
+        response?.message_history?.[0]?.content ??
+        "Sorry, I didn't get a valid response. Please try again.";
+
+      setConversation((prev) =>
+        prev.map((msg) =>
+          msg.id === aiLoadingMessage.id ? { ...msg, text: aiMessageText } : msg
+        )
+      );
+    } catch (error) {
+      console.error("Failed to get AI response: ", error);
+      const errorMessage =
+        "I'm having trouble connecting to my brain right now. Please try again in a moment.";
+      setConversation((prev) =>
+        prev.map((msg) =>
+          msg.id === aiLoadingMessage.id ? { ...msg, text: errorMessage } : msg
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleStartGame = async () => {
+    if (isLoading) return;
+
+    const aiLoadingMessage: Message = {
+      id: `ai-start-${Date.now()}`,
+      sender: "ai",
+      text: "...",
+    };
+
+    setConversation((prev) => [...prev, aiLoadingMessage]);
+    setIsLoading(true);
+
+    try {
+      const response = await invokeMysteryItemGraph(
+        "test_session_invoke",
+        "start game"
+      );
       const aiMessageText =
         response?.message_history?.[0]?.content ??
         "Sorry, I didn't get a valid response. Please try again.";
@@ -93,7 +133,9 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
             text={msg.text}
           />
         ))}
-        {/* <Button variant="base">base</Button> */}
+        <Button variant="base" onClick={handleStartGame}>
+          Start Game
+        </Button>
         {/* <Button variant="secondary">secondary</Button> */}
         {/* <Button variant="cancel">cancel</Button> */}
         {/* <Button variant="disabled">disabled</Button> */}
