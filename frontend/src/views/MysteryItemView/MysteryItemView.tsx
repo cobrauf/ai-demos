@@ -91,9 +91,9 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     );
   };
 
-  const handleStartGame = async () => {
+  const handleGameMessage = async (message: string) => {
     await handleApiCall(() =>
-      invokeMysteryItemGraph("test_session_invoke", "start game")
+      invokeMysteryItemGraph("test_session_invoke", message)
     );
   };
 
@@ -113,10 +113,15 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
             text={msg.text}
           />
         ))}
-        <Button variant="base" onClick={handleStartGame}>
+        <Button variant="base" onClick={() => handleGameMessage("start game")}>
           Start Game
         </Button>
-        {/* <Button variant="secondary">secondary</Button> */}
+        <Button
+          variant="secondary"
+          onClick={() => handleGameMessage("Is it a orange?")}
+        >
+          Is it a orange?
+        </Button>{" "}
         {/* <Button variant="cancel">cancel</Button> */}
         {/* <Button variant="disabled">disabled</Button> */}
         {/* <Button variant="icon">icon</Button> */}
