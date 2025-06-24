@@ -12,6 +12,18 @@ from langgraph.graph import StateGraph, END
 
 logger = logging.getLogger(__name__)
 
+#for general chat
+def general_chat(chat_message: str) -> str:
+    '''
+    General chat with the agent.
+    '''
+    logger.info(f"--- general chat ---")
+    logger.info(f"chat_message: {chat_message}")
+    response = llm.invoke(chat_message)
+    logger.info(f"--- response.content ---") 
+    logger.info(f"response.content: {response.content}")
+    return response.content
+
 
 class AgentState(TypedDict):
     session_id: str

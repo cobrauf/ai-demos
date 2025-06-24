@@ -16,6 +16,7 @@ try:
         api_key=OPENROUTER_API_KEY,
         base_url="https://openrouter.ai/api/v1",
         temperature=0.0,
+        max_retries=3,
     )
     print("LLM Initialized successfully!")
 except Exception as e:

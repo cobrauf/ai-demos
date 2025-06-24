@@ -12,8 +12,17 @@ router = APIRouter(
 )
 
 class ChatRequest(BaseModel):
-    session_id: str
+    session_id: str | None = None
     message: str
+    
+    
+@router.post("") # for general chat
+def chat_mystery_item(request: ChatRequest):
+    chat_message = HumanMessage(content=request.message)    
+    result = mystery_item_service.general_chat([chat_message])
+    ai_message = AIMessage(content=result)
+    return {"message_history": [ai_message]}
+
 
 @router.post("/invoke")
 def invoke_mystery_item(request: ChatRequest):
@@ -25,11 +34,3 @@ def invoke_mystery_item(request: ChatRequest):
     logger.info(AIMessage(content=result))
     return result
 
-@router.get("") # for dev 
-def read_root():
-    result = mystery_item_service.node_agent({
-        "session_id": "test_id",
-        "message_history": [HumanMessage(content="write a haiku about a food item.")]})
-    logger.info(f"--- result from mystery-item root ---")
-    logger.info(result)
-    return result 

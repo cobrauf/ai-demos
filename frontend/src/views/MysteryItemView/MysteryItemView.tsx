@@ -34,24 +34,35 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     }
   }, [conversation, isLoading]);
 
-  const handleSendMessage = (text: string) => {
+  const handleSendMessage = async (text: string) => {
     if (isLoading) return;
 
     const userMessage: Message = { sender: "user", text };
     setConversation((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
-    invokeMysteryItem("test_session", text); // for dev
-
-    // Simulate API response
-    setTimeout(() => {
+    try {
+      const response = await invokeMysteryItem("test_session", text); // for dev
+      const aiMessage =
+        response?.message_history?.[0]?.content ??
+        "Sorry, I didn't get a valid response. Please try again.";
       const aiResponse: Message = {
         sender: "ai",
-        text: "That's an interesting guess! But not quite. Try again!",
+        text: aiMessage,
       };
       setConversation((prev) => [...prev, aiResponse]);
+    } catch (error) {
+      console.error("Failed to get AI response: ", error);
+      setConversation((prev) => [
+        ...prev,
+        {
+          sender: "ai",
+          text: "I'm having trouble connecting to my brain right now. Please try again in a moment.",
+        },
+      ]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleNewGame = () => {

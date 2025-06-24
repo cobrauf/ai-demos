@@ -24,7 +24,7 @@ export const invokeMysteryItem = async (
   session_id: string,
   message: string
 ) => {
-  const response = await api.post("/mystery-item/invoke", {
+  const response = await api.post("/mystery-item/", {
     session_id,
     message,
   });
