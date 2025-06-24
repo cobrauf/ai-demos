@@ -5,6 +5,7 @@
   color: var(--text-color);
   margin-left: 20px;
   border-left: 3px solid transparent;
+  font-size: 1.5rem;
 }
 
 /* .toggle:hover {
@@ -18,5 +19,5 @@
 }
 
 .link {
-  text-decoration: none;
+  text-decoration: none !important;
 }
