@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
+import logging
 from src.config.llm_config import llm
 from typing import Annotated, TypedDict, Sequence 
 from langchain_core.messages import BaseMessage, HumanMessage
@@ -9,6 +10,7 @@ from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, END
 
 
+logger = logging.getLogger(__name__)
 
 
 class AgentState(TypedDict):
@@ -24,12 +26,12 @@ def node_agent(state: AgentState) -> AgentState:
     - User has some number of attempts to guess the item, the agent provides feedback on each guess.
     '''
     # make above a system message
-    print(f"--- message history start ---")
-    print(f"state: {state}")
-    print(f"message_history: {state['message_history']}")
+    logger.info(f"--- message history start ---")
+    logger.info(f"state: {state}")
+    logger.info(f"message_history: {state['message_history']}")
     response = llm.invoke(state["message_history"])
-    print(f"--- response.content ---")
-    print(response.content)
+    logger.info(f"--- response.content ---")
+    logger.info(response.content)
     return {"message_history": [response]}
 
 graph = StateGraph(AgentState)
@@ -39,14 +41,14 @@ graph.add_edge("agent", END)
 app = graph.compile()
 
 # output to a png
-graph_png_bytes = app.get_graph().draw_mermaid_png()
-output_filename = "./services/mystery_item_graph.png"
-try:
-    with open(output_filename, "wb") as f:
-        f.write(graph_png_bytes)
-    print(f"Graph saved successfully to {output_filename}")
-except IOError as e:
-    print(f"Error saving graph to file: {e}")
+# graph_png_bytes = app.get_graph().draw_mermaid_png()
+# output_filename = "./services/mystery_item_graph.png"
+# try:
+#     with open(output_filename, "wb") as f:
+#         f.write(graph_png_bytes)
+#     print(f"Graph saved successfully to {output_filename}")
+# except IOError as e:
+#     print(f"Error saving graph to file: {e}")
 
 
 # if __name__ == "__main__":
