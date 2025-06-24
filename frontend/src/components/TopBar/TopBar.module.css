@@ -14,7 +14,7 @@
   position: static;
   z-index: 1001;
   cursor: pointer;
-  background: rgba(128, 128, 128, 0.1);
+  /* background: rgba(128, 128, 128, 0.1); */
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -29,5 +29,8 @@
 .title {
   font-size: 1.5rem;
   margin: 0;
-  padding-left: 1rem;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
