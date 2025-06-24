@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.services import testChain
+from src.services import testChain, mystery_item_service # for dev
+from langchain_core.messages import HumanMessage # for dev
+
 
 app = FastAPI()
 
@@ -19,6 +21,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+#test endpoints -------------------------------- # for dev
 @app.get("/")
 def read_root():
     return testChain.test_llm_call()
+
+@app.get("/mystery-item")
+def read_root():
+    result = mystery_item_service.node_agent({
+        "session_id": "test_id",
+        "message_history": [HumanMessage(content="write a haiku about a food item.")]})
+    print(f"--- result ---")
+    print(result)
+    return result
