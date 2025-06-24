@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 import logging
 from src.config.llm_config import llm
 from typing import Annotated, TypedDict, Sequence 
-from langchain_core.messages import BaseMessage, HumanMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
 from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, END
 
@@ -13,13 +13,15 @@ from langgraph.graph import StateGraph, END
 logger = logging.getLogger(__name__)
 
 #for general chat
-def general_chat(chat_message: str) -> str:
-    '''
-    General chat with the agent.
-    '''
+def general_chat(chat_message: list[HumanMessage]) -> str:
+    system_message = SystemMessage(content='''
+    You are a helpful assistant. Respond in concise and friendly matter, no more than 100 words.
+    ''')
+ 
     logger.info(f"--- general chat ---")
     logger.info(f"chat_message: {chat_message}")
-    response = llm.invoke(chat_message)
+    prompt = [system_message] + chat_message
+    response = llm.invoke(prompt)
     logger.info(f"--- response.content ---") 
     logger.info(f"response.content: {response.content}")
     return response.content
