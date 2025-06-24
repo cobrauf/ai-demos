@@ -35,25 +35,27 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     }
   }, [conversation, isLoading]);
 
-  const handleSendMessage = async (text: string) => {
+  const handleApiCall = async (
+    apiCall: () => Promise<any>,
+    userMessage?: Message
+  ) => {
     if (isLoading) return;
 
-    const userMessage: Message = {
-      id: `user-${Date.now()}`,
-      sender: "user",
-      text,
-    };
     const aiLoadingMessage: Message = {
       id: `ai-${Date.now()}`,
       sender: "ai",
       text: "...",
     };
 
-    setConversation((prev) => [...prev, userMessage, aiLoadingMessage]);
+    setConversation((prev) => [
+      ...prev,
+      ...(userMessage ? [userMessage] : []),
+      aiLoadingMessage,
+    ]);
     setIsLoading(true);
 
     try {
-      const response = await chatMysteryItem("test_session", text);
+      const response = await apiCall();
       const aiMessageText =
         response?.message_history?.[0]?.content ??
         "Sorry, I didn't get a valid response. Please try again.";
@@ -66,7 +68,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     } catch (error) {
       console.error("Failed to get AI response: ", error);
       const errorMessage =
-        "I'm having trouble connecting to my brain right now. Please try again in a moment.";
+        "I'm having trouble connecting to an LLM model right now. Please try again in a moment.";
       setConversation((prev) =>
         prev.map((msg) =>
           msg.id === aiLoadingMessage.id ? { ...msg, text: errorMessage } : msg
@@ -77,44 +79,22 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     }
   };
 
-  const handleStartGame = async () => {
-    if (isLoading) return;
-
-    const aiLoadingMessage: Message = {
-      id: `ai-start-${Date.now()}`,
-      sender: "ai",
-      text: "...",
+  const handleSendMessage = async (text: string) => {
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      sender: "user",
+      text,
     };
+    await handleApiCall(
+      () => chatMysteryItem("test_session", text),
+      userMessage
+    );
+  };
 
-    setConversation((prev) => [...prev, aiLoadingMessage]);
-    setIsLoading(true);
-
-    try {
-      const response = await invokeMysteryItemGraph(
-        "test_session_invoke",
-        "start game"
-      );
-      const aiMessageText =
-        response?.message_history?.[0]?.content ??
-        "Sorry, I didn't get a valid response. Please try again.";
-
-      setConversation((prev) =>
-        prev.map((msg) =>
-          msg.id === aiLoadingMessage.id ? { ...msg, text: aiMessageText } : msg
-        )
-      );
-    } catch (error) {
-      console.error("Failed to get AI response: ", error);
-      const errorMessage =
-        "I'm having trouble connecting to my brain right now. Please try again in a moment.";
-      setConversation((prev) =>
-        prev.map((msg) =>
-          msg.id === aiLoadingMessage.id ? { ...msg, text: errorMessage } : msg
-        )
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  const handleStartGame = async () => {
+    await handleApiCall(() =>
+      invokeMysteryItemGraph("test_session_invoke", "start game")
+    );
   };
 
   const handleNewGame = () => {
