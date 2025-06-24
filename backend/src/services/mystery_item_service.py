@@ -54,7 +54,7 @@ def generate_mystery_item(state: AgentState) -> AgentState:
     logger.info(f"--- generate_mystery_item ---")
     logger.info(f"state: {state}")
     logger.info(f"response: {response}")
-    logger.info(f"--- response.content ---")
+    logger.info(f"--- generate_mystery_item response.content ---")
     logger.info(response.content)
     return {"mystery_item": response.content}
 
@@ -73,7 +73,7 @@ def check_guess(state: AgentState) -> AgentState:
     logger.info(f"--- check_guess ---")
     logger.info(f"state: {state}")
     logger.info(f"response: {response}")
-    logger.info(f"--- response.content ---")    
+    logger.info(f"--- check_guess response.content ---")    
     logger.info(response.content)
     return {"guess_correct": response.content}
 
@@ -83,63 +83,48 @@ llm_w_tools = llm.bind_tools(tools)
 
 
 def node_agent(state: AgentState) -> AgentState:
-    system_message = SystemMessage(content='''
-    You are a friendly host of a Mystery Item Game. The goal of the game is for the user to guess the mystery item.
+    system_message_content = '''
+    You are a friendly host of a Mystery Item Game. 
+    The goal of the game is for the user to guess the mystery item.
     The user has a limited number of questions to ask you, and a limited number of attempts to guess the item.
-    ''')
+    '''
     
-    # You have the following responsibilities:
-    # - If there is no mystery item, you should generate one.
-    # - If there is a mystery item chosen, you should respond to the user's chat message.
-    # - If the user asks a question, you should respond with "yes", "no", or "irrelevant".
-    # - If the user asks a question, you should respond with "yes", "no", or "irrelevant".
-    # - If the user asks a question, you should respond with "yes", "no", or "irrelevant".
+    # if state.get("mystery_item") is None:
+    #     system_message_content += "\nThere is no mystery item yet. Your job is to generate one now by calling the `generate_mystery_item` tool."
     
-    # '''
-    # Orchestrate flow of Mystery Item Game:
-    # - User chooses a category (eg, "things", "places", "people", or "custom").
-    # - Agent generates a mystery item that is the answer.
-    # - User has some number of questions to ask the agent, the agent responds with "yes", "no", or "irrelevant".
-    # - User has some number of attempts to guess the item, the agent provides feedback on each guess.
-    # '''
+    system_message = SystemMessage(content=system_message_content)
+    messages = [system_message] + state["message_history"]
     
-    # make above a system message
-    logger.info(f"--- message history start ---")
+    logger.info(f"--- agent node ---")
     logger.info(f"state: {state}")
-    logger.info(f"message_history: {state['message_history']}")
-    response = llm.invoke(state["message_history"])
-    logger.info(f"--- response.content ---")
-    logger.info(response.content)
+    logger.info(f"messages: {messages}")
+    response = llm_w_tools.invoke(messages)
+    logger.info(f"--- agent response ---")
+    logger.info(response)
     return {"message_history": [response]}
 
 
 def router(state: AgentState) -> str:
-    if state.get("mystery_item") is None:
-        return "generate_answer_tool"
-    if state.get("guess"):
-        return "check_guess"
-    else:
-        return "agent"
+    last_message = state["message_history"][-1]
+    if last_message.tool_calls:
+        return "tool_node"
+    return END
 
 
 graph = StateGraph(AgentState)
 graph.add_node("agent", node_agent)
-graph.add_node("generate_answer_tool", tool_node)
-graph.add_node("check_guess_tool", tool_node)
+graph.add_node("tool_node", tool_node)
 
 graph.set_entry_point("agent")
 graph.add_conditional_edges(
     "agent",
     router,
     {
-        "generate_answer_tool": "generate_answer_tool",
-        "check_guess": "check_guess_tool",
-        "agent": "agent",
+        "tool_node": "tool_node",
+        END: END,
     },
 )
-graph.add_edge("generate_answer_tool", "agent")
-graph.add_edge("check_guess_tool", "agent")
-graph.add_edge("agent", END)
+graph.add_edge("tool_node", "agent")
 
 
 app = graph.compile()
