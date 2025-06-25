@@ -5,13 +5,17 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 import logging
 from src.config.llm_config import llm
 from typing import Annotated, TypedDict, Sequence 
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, ToolMessage
 from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, END
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.types import interrupt, Command
 
 logger = logging.getLogger(__name__)
+
+memory = MemorySaver()
 
 class AgentState(TypedDict):
     session_id: str
@@ -113,14 +117,26 @@ def router(state: AgentState) -> str:
     global router_cnt
     router_cnt += 1
     logger.info(f"--- router cnt {router_cnt} ---")
-    if router_cnt > 3:
+    if router_cnt > 5: # Increased limit for safety
+        logger.warning("Router limit reached, ending graph.")
         return END
     last_message = state["messages"][-1]
     if last_message.tool_calls:
         logger.info(f"--- router, tool_calls = {last_message.tool_calls} ---")
         return "tool_node"
-    logger.info(f"--- router, END ---")
-    return END
+    
+    # If the last message is a ToolMessage, interrupt here to get user input.
+    if isinstance(last_message, ToolMessage):
+        logger.info(f"--- router, tool finished, interrupting for user response ---")
+        return "__interrupt__"
+
+    # If the agent has produced a response without a tool call, interrupt to show it to the user.
+    if not last_message.tool_calls and isinstance(last_message, SystemMessage) is False:
+        logger.info(f"--- router, interrupting for user input NOT SURE IF THIS SHOULD HAPPEN ---")
+        return "__interrupt__"
+        
+    logger.info(f"--- router, continuing THIS SHOULD NOT HAPPEN ---")
+    return "agent"
 
 
 graph = StateGraph(AgentState)
@@ -133,22 +149,50 @@ graph.add_conditional_edges(
     router,
     {
         "tool_node": "tool_node",
+        "__interrupt__": END, # Interrupts are handled by stream, graph should end here for the turn
+        "agent": "agent",
         END: END,
     },
 )
 graph.add_edge("tool_node", "agent")
 
 
-app = graph.compile()
+app = graph.compile(checkpointer=memory)
 
-def invoke_mystery_item_graph(state: AgentState) -> AgentState:
+def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) -> list[BaseMessage]:
+    """
+    Invokes the mystery item graph.
+    Args:
+        session_id: The session ID for the conversation.
+        user_message: The user's message to inject into the graph.
+    Returns:
+        The updated list of messages from the graph state.
+    """
     logger.info(f"--- invoke_graph ---")
-    response = app.invoke(state)
-    logger.info(f"--- response from graph ---")
-    logger.info(response)
-    logger.info(f"--- final state ---")
-    logger.info(state)
-    return state
+    config = {"configurable": {"thread_id": session_id}}
+    
+    # The input to stream is the input for the entry point node (`agent`).
+    # The `add_messages` reducer will add our new message to the existing ones.
+    initial_state = {"messages": []}
+    if user_message:
+        initial_state["messages"].append(HumanMessage(content=user_message))
+
+    final_state = None
+    for chunk in app.stream(initial_state, config=config):
+        # chunk is a dictionary with the node name as key and the output as value
+        logger.info(f"--- streaming chunk ---")
+        logger.info(chunk)
+        final_state = chunk
+
+    # The final state is the output of the last node that ran
+    # We are interested in the 'agent' node's output which is the full state
+    if final_state and "agent" in final_state:
+        return final_state["agent"]["messages"]
+
+    # If the graph ended without the agent running (e.g. interruption after tool),
+    # we need to fetch the current state from the checkpointer
+    current_state = app.get_state(config)
+    return current_state.values["messages"]
 
 # output to a png
 # graph_png_bytes = app.get_graph().draw_mermaid_png()
