@@ -28,22 +28,23 @@ class AgentState(TypedDict):
     
 # START tools ------------------------------------------------------------
 @tool
-def general_chat(user_message: str) -> str:
+def general_chat(state: AgentState) -> AgentState:
     '''Use this tool for chat messages, whether the user is asking a question or making a guess, or just chatting about something unrelated to the game.'''
     
     system_message = SystemMessage(content='''
-    You are a friendly host of a Mystery Item Game. The goal of the game is for the user to guess the mystery item.
-    Your goal is to guide the user to play the game, if they chat about something unrelated to the game, you should still answer but also remind them to play.
-    Respond in concise and friendly matter, no more than 100 words.
+    You are a friendly host of a Mystery Item Game. The goal of the game is for the user to guess the mystery item by asking yes/no questions to narrow down the answer.
+    Your goal is to guide the user to play the game, by providing helpful responses to their questions, or prompting them to ask a question.
+    If they chat about something unrelated to the game, you should still answer but also remind them to play.
+    Respond in concise and friendly matter, no more than 50 words.
     ''')
  
     logger.info(f"--- general_chat_tool ---")
-    logger.info(f"user_message: {user_message}")
-    prompt = [system_message, HumanMessage(content=user_message)]
+    # logger.info(f"user_message: {user_message}")
+    prompt = [system_message] + state["messages"]
     response = llm.invoke(prompt)
     logger.info(f"--- general_chat_tool response.content ---") 
     logger.info(f"response.content: {response.content}")
-    return response.content
+    return {"messages": [response]}
     
 @tool
 def generate_mystery_item() -> dict:
@@ -81,7 +82,8 @@ def check_guess(user_guess: str, mystery_item: str) -> str:
     return {"guess_correct": response.content}
 
 tools = [generate_mystery_item, check_guess, general_chat]
-tool_node = ToolNode(tools)
+game_tool_node = ToolNode([generate_mystery_item, check_guess])
+chat_tool_node = ToolNode([general_chat])
 llm_w_tools = llm.bind_tools(tools, tool_choice="any") # force it to choose a tool
 # END tools ------------------------------------------------------------
 
@@ -123,7 +125,7 @@ def node_game_agent(state: AgentState) -> AgentState:
     IMPORTANT: You must choose a tool to use, if you are not sure, default to `general_chat`.
     '''
      
-    if state["mystery_item"] is None:
+    if state.get("mystery_item") is None:
         system_message_content += "\nThere is no mystery item yet. Your job is to generate one now by calling the `generate_mystery_item` tool."
     else:
         system_message_content += f"\nThe mystery item has been set. Do not reveal the item: {state['mystery_item']}"
@@ -139,45 +141,39 @@ def router(state: AgentState) -> str:
     global router_cnt
     router_cnt += 1
     logger.info(f"--- router cnt {router_cnt} ---")
-    if router_cnt > 3: 
+    if router_cnt > 5: 
         logger.warning("Router limit reached, ending graph.")
         return END
     
     last_message = state["messages"][-1]
     if last_message.tool_calls:
         logger.info(f"--- router, tool_calls = {last_message.tool_calls} ---")
-        return "tool_node"
-    
-    # If the last message is a ToolMessage, interrupt here to get user input.
-    if isinstance(last_message, ToolMessage):
-        logger.info(f"!!! router, tool finished, interrupting for user response !!!")
-        return "__interrupt__"
-
-    # If the agent has produced a response without a tool call, interrupt to show it to the user.
-    if not last_message.tool_calls and isinstance(last_message, SystemMessage) is False:
-        logger.info(f"--- router, interrupting for user input NOT SURE IF THIS SHOULD HAPPEN ---")
+        if last_message.tool_calls[0]['name'] == 'general_chat':
+            return "chat_tool_node"
+        else:
+            return "game_tool_node"
+    else:
+        logger.info(f"!!!!!!! interrupt SHOULDN'T HAPPEN !!!!!!!")
         return "__interrupt__"
         
-    logger.info(f"--- router, continuing THIS SHOULD NOT HAPPEN ---")
-    return "agent"
-
 
 graph = StateGraph(AgentState)
 graph.add_node("agent", node_game_agent)
-graph.add_node("tool_node", tool_node)
+graph.add_node("game_tool_node", game_tool_node)
+graph.add_node("chat_tool_node", chat_tool_node)
 
 graph.set_entry_point("agent")
 graph.add_conditional_edges(
     "agent",
     router,
     {
-        "tool_node": "tool_node",
-        "__interrupt__": END, # Interrupts are handled by stream, graph should end here for the turn
-        "agent": "agent",
-        END: END,
+        "game_tool_node": "game_tool_node",
+        "chat_tool_node": "chat_tool_node",
+        "__interrupt__": END,
     },
 )
-graph.add_edge("tool_node", "agent")
+graph.add_edge("game_tool_node", "agent")
+graph.add_edge("chat_tool_node", END)
 
 
 app = graph.compile(checkpointer=memory)
@@ -206,8 +202,8 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     final_state = None
     for chunk in app.stream(initial_state, config=config):
         # chunk is a dictionary with the node name as key and the output as value
-        logger.info(f"--- streaming chunk ---")
-        logger.info(chunk)
+        # logger.info(f"--- streaming chunk ---")
+        # logger.info(chunk)
         final_state = chunk
 
     # The final state is the output of the last node that ran
