@@ -187,11 +187,15 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     # The final state is the output of the last node that ran
     # We are interested in the 'agent' node's output which is the full state
     if final_state and "agent" in final_state:
+        logger.info(f"--- final_state ---")
+        logger.info(final_state)
         return final_state["agent"]["messages"]
 
     # If the graph ended without the agent running (e.g. interruption after tool),
     # we need to fetch the current state from the checkpointer
     current_state = app.get_state(config)
+    logger.info(f"--- current_state ---")
+    logger.info(current_state)
     return current_state.values["messages"]
 
 # output to a png
