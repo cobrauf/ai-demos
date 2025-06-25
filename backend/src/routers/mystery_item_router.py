@@ -30,7 +30,7 @@ def invoke_mystery_item(request: ChatRequest):
         "session_id": request.session_id,
         "messages": [HumanMessage(content=request.message)]
     })
-    logger.info(f"--- result from mystery-item invoke ---")
-    logger.info(f"result: {result}")
+    # logger.info(f"--- result from mystery-item invoke ---")
+    # logger.info(f"result: {result}")
     return result
 

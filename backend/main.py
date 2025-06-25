@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.services import testChain # for dev
 from src.routers import mystery_item_router
 
+logging.getLogger("httpx").setLevel(logging.WARNING)
+
 logging.basicConfig(level=logging.INFO, format='%(levelname)s:     %(message)s')
 logger = logging.getLogger(__name__)
 
