@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 class AgentState(TypedDict):
     session_id: str
     mystery_item: str | None = None
-    guess: str | None = None
     guess_correct: str | None = None
     question_count: int = 0
     guess_count: int = 0
@@ -25,7 +24,7 @@ class AgentState(TypedDict):
 # tools ------------------------------------------------------------
 @tool
 def general_chat(user_message: str) -> str:
-    """Use this tool for conversational messages, for example if the user says hello, or asks a question that is not related to the game."""
+    '''Use this tool for chat messages, whether the user is asking a question or making a guess, or just chatting about something unrelated to the game.'''
     
     system_message = SystemMessage(content='''
     You are a friendly host of a Mystery Item Game. The goal of the game is for the user to guess the mystery item.
@@ -43,7 +42,7 @@ def general_chat(user_message: str) -> str:
     
 @tool
 def generate_mystery_item() -> dict:
-    '''Generate a mystery answer for a guess-the-thing game.'''
+    '''Use this tool to generate a mystery answer for a guess-the-thing game.'''
     
     system_message = SystemMessage(content='''
     You are a helpful assistant, your only job is to generate a mystery "answer" for a guess-the-thing game. 
@@ -57,16 +56,17 @@ def generate_mystery_item() -> dict:
     return {"mystery_item": response.content}
 
 @tool
-def check_guess(state: AgentState) -> AgentState:
-    '''Check if the user's guess is correct.'''
+def check_guess(user_guess: str, mystery_item: str) -> str:
+    '''Use this tool to check if the user's guess is correct.'''
     
     system_message = SystemMessage(content=f'''
-    You are a helpful assistant, your only job is to check if the user's guess is correct.
-    The mystery item is: {state['mystery_item']}.
-    The user's guess is: {state['guess']}.
+    You are a helpful assistant, your job is to check if the user's guess is correct.
+    The mystery item is: {mystery_item}.
+    The user's guess is: {user_guess}.
+    Use judgement to determine if the user's guess is correct, don't be too strict. (Eg, piano player is correct for the mystery item "pianist")
     IMPORTANT: Your response can only be one of the following: "correct" or "incorrect".
     ''')
-    # prompt = [system_message]
+    
     response = llm.invoke([system_message])
     logger.info(f"--- check_guess ---")
     logger.info(f"state: {state}")
@@ -85,8 +85,10 @@ def node_agent(state: AgentState) -> AgentState:
     The user has a limited number of questions to ask you, and a limited number of attempts to guess the item.
     You have the following tools to help you:
     - `generate_mystery_item`: Call this to start the game and get a new item.
+    - `check_question`: Call this when the user asks a question about the mystery item.
     - `check_guess`: Call this when the user tries to guess the item.
     - `general_chat`: Call this for any conversational messages that are not part of the game.
+    Reminder: Use good judgement to determine if the user is asking a question or making a guess.
     IMPORTANT: You must choose a tool to use, if you are not sure, default to `general_chat`.
     '''
      
