@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 import logging
 from src.config.llm_config import llm
 from typing import Annotated, TypedDict, Sequence 
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, ToolMessage, AIMessage
 from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, END
 from langchain_core.tools import tool
@@ -31,16 +31,27 @@ class AgentState(TypedDict):
 def general_chat(state: AgentState) -> AgentState:
     '''Use this tool for chat messages, whether the user is asking a question or making a guess, or just chatting about something unrelated to the game.'''
     
-    system_message = SystemMessage(content='''
+    mystery_item_context = ""
+    if state.get("mystery_item"):
+        mystery_item_context = f"\nThe current mystery item is: {state['mystery_item']}. Answer yes/no questions about this item accurately."
+    
+    system_message = SystemMessage(content=f'''
     You are a friendly host of a Mystery Item Game. The goal of the game is for the user to guess the mystery item by asking yes/no questions to narrow down the answer.
     Your goal is to guide the user to play the game, by providing helpful responses to their questions, or prompting them to ask a question.
     If they chat about something unrelated to the game, you should still answer but also remind them to play.
-    Respond in concise and friendly matter, no more than 50 words.
+    Respond in concise and friendly matter, no more than 50 words.{mystery_item_context}
     ''')
  
     logger.info(f"--- general_chat_tool ---")
     # logger.info(f"user_message: {user_message}")
-    prompt = [system_message] + state["messages"]
+    
+    # Filter messages to only include Human and AI messages to avoid serialization issues
+    filtered_messages = [
+        msg for msg in state["messages"] 
+        if isinstance(msg, (HumanMessage, AIMessage))
+    ]
+    
+    prompt = [system_message] + filtered_messages
     response = llm.invoke(prompt)
     logger.info(f"--- general_chat_tool response.content ---") 
     logger.info(f"response.content: {response.content}")

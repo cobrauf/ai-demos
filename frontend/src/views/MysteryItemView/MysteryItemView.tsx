@@ -3,18 +3,20 @@ import styles from "./MysteryItemView.module.css";
 import ChatMessage from "../../components/ChatMessage/ChatMessage";
 import ChatInput from "../../components/ChatInput/ChatInput";
 import TopBar from "../../components/TopBar/TopBar";
+import { invokeMysteryItemGraph } from "../../services/api";
 import { Button } from "../../components/Button/Button";
-import { chatMysteryItem, invokeMysteryItemGraph } from "../../services/api";
 
 const WELCOME_MESSAGE: Message = {
   sender: "ai",
-  text: "Welcome to the Mystery Item Game! I'm thinking of an object. Try to guess what it is!",
+  text: "Welcome to the Mystery Item Game!",
 };
 
 interface Message {
   id?: string;
   sender: "ai" | "user";
   text: string;
+  type?: "human" | "ai" | "tool";
+  content?: string;
 }
 
 interface MysteryItemViewProps {
@@ -35,40 +37,94 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     }
   }, [conversation, isLoading]);
 
-  const handleApiCall = async (
-    apiCall: () => Promise<any>,
-    userMessage?: Message
-  ) => {
+  const handleSendMessage = async (text: string) => {
     if (isLoading) return;
+
+    const userMessage: Message = {
+      id: `user-${Date.now()}`,
+      sender: "user",
+      text,
+    };
+
+    setConversation((prev) => [...prev, userMessage]);
+    setIsLoading(true);
 
     const aiLoadingMessage: Message = {
       id: `ai-${Date.now()}`,
       sender: "ai",
       text: "...",
     };
-
-    setConversation((prev) => [
-      ...prev,
-      ...(userMessage ? [userMessage] : []),
-      aiLoadingMessage,
-    ]);
-    setIsLoading(true);
+    setConversation((prev) => [...prev, aiLoadingMessage]);
 
     try {
-      const response = await apiCall();
-      const aiMessageText =
-        response?.message_history?.[0]?.content ??
+      const response = await invokeMysteryItemGraph(
+        "test_session_invoke",
+        text
+      );
+
+      // Look for the general_chat tool result which contains the AI's actual response
+      const generalChatTool = response
+        .slice()
+        .reverse()
+        .find((msg: any) => msg.type === "tool" && msg.name === "general_chat");
+
+      let aiMessageText =
         "Sorry, I didn't get a valid response. Please try again.";
+
+      if (generalChatTool?.content) {
+        // Handle different response formats from the backend
+        const content = generalChatTool.content;
+
+        // Check if it's an error message
+        if (content.startsWith("Error:")) {
+          aiMessageText =
+            "I encountered an issue processing your request. Please try again.";
+        } else {
+          // Try multiple parsing strategies
+
+          // Strategy 1: Look for AIMessage(content="...") pattern
+          let match = content.match(/AIMessage\(content="([^"]+)"/);
+          if (match) {
+            aiMessageText = match[1];
+          } else {
+            // Strategy 2: Look for content="..." pattern
+            match = content.match(/content="([^"]+)"/);
+            if (match) {
+              aiMessageText = match[1];
+            } else {
+              // Strategy 3: Look for content='...' pattern
+              match = content.match(/content='([^']+)'/);
+              if (match) {
+                aiMessageText = match[1];
+              } else {
+                // Strategy 4: Try to extract any text between quotes
+                match = content.match(/"([^"]{10,})"/);
+                if (match) {
+                  aiMessageText = match[1];
+                } else {
+                  // Last resort: use a fallback message
+                  aiMessageText =
+                    "I'm having trouble responding right now. Please try again.";
+                }
+              }
+            }
+          }
+        }
+      }
+
+      console.log("AI response:", aiMessageText);
 
       setConversation((prev) =>
         prev.map((msg) =>
-          msg.id === aiLoadingMessage.id ? { ...msg, text: aiMessageText } : msg
+          msg.id === aiLoadingMessage.id
+            ? { ...msg, text: aiMessageText, id: `ai-${Date.now()}-response` }
+            : msg
         )
       );
     } catch (error) {
       console.error("Failed to get AI response: ", error);
       const errorMessage =
-        "I'm having trouble connecting to an LLM model right now. Please try again in a moment.";
+        "I'm having trouble connecting to the game server right now. Please try again in a moment.";
       setConversation((prev) =>
         prev.map((msg) =>
           msg.id === aiLoadingMessage.id ? { ...msg, text: errorMessage } : msg
@@ -79,25 +135,10 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     }
   };
 
-  const handleSendMessage = async (text: string) => {
-    const userMessage: Message = {
-      id: `user-${Date.now()}`,
-      sender: "user",
-      text,
-    };
-    await handleApiCall(
-      () => chatMysteryItem("test_session", text),
-      userMessage
-    );
-  };
-
-  const handleGameMessage = async (message: string) => {
-    await handleApiCall(() =>
-      invokeMysteryItemGraph("test_session_invoke", message)
-    );
-  };
-
   const handleNewGame = () => {
+    // Note: This only resets the frontend conversation.
+    // A new session ID would be needed to truly start a new game on the backend.
+    // For now, we just clear the view.
     setConversation([WELCOME_MESSAGE]);
     setIsLoading(false);
   };
@@ -113,12 +154,12 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
             text={msg.text}
           />
         ))}
-        <Button variant="base" onClick={() => handleGameMessage("start game")}>
+        <Button variant="base" onClick={() => handleSendMessage("start game")}>
           Start Game
         </Button>
         <Button
           variant="secondary"
-          onClick={() => handleGameMessage("Is it a orange?")}
+          onClick={() => handleSendMessage("Is it a orange?")}
         >
           Is it a orange?
         </Button>{" "}
