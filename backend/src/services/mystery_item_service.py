@@ -127,16 +127,11 @@ def node_game_agent(state: AgentState) -> AgentState:
         system_message_content += "\nThere is no mystery item yet. Your job is to generate one now by calling the `generate_mystery_item` tool."
     else:
         system_message_content += f"\nThe mystery item has been set. Do not reveal the item: {state['mystery_item']}"
+        system_message_content += f"\nRemember after other tools are called, you must call the 'general_chat' tool to respond to the user."
      
     system_message = SystemMessage(content=system_message_content)
     prompt = [system_message] + state["messages"] 
-    
-    # logger.info(f"--- agent node, state before invoking llm ---")
-    # logger.info(f"state: {state}")
-    # logger.info(f"messages: {state['messages']}")
     response = llm_w_tools.invoke(prompt)
-    # logger.info(f"--- agent node response ---")
-    # logger.info(response)
     return {"messages": [response]}
 
 router_cnt = 0
@@ -144,9 +139,10 @@ def router(state: AgentState) -> str:
     global router_cnt
     router_cnt += 1
     logger.info(f"--- router cnt {router_cnt} ---")
-    if router_cnt > 3: # Increased limit for safety
+    if router_cnt > 3: 
         logger.warning("Router limit reached, ending graph.")
         return END
+    
     last_message = state["messages"][-1]
     if last_message.tool_calls:
         logger.info(f"--- router, tool_calls = {last_message.tool_calls} ---")
@@ -237,9 +233,3 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
 #     print(f"Graph saved successfully to {output_filename}")
 # except IOError as e:
 #     print(f"Error saving graph to file: {e}")
-
-
-
-
-
-
