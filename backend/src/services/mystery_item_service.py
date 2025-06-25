@@ -19,13 +19,14 @@ memory = MemorySaver()
 
 class AgentState(TypedDict):
     session_id: str
+    game_started: bool = False
     mystery_item: str | None = None
     guess_correct: str | None = None
     question_count: int = 0
     guess_count: int = 0
     messages: Annotated[Sequence[BaseMessage], add_messages]
     
-# tools ------------------------------------------------------------
+# START tools ------------------------------------------------------------
 @tool
 def general_chat(user_message: str) -> str:
     '''Use this tool for chat messages, whether the user is asking a question or making a guess, or just chatting about something unrelated to the game.'''
@@ -73,7 +74,7 @@ def check_guess(user_guess: str, mystery_item: str) -> str:
     
     response = llm.invoke([system_message])
     logger.info(f"--- check_guess ---")
-    logger.info(f"state: {state}")
+    # logger.info(f"state: {state}")
     logger.info(f"response: {response}")
     logger.info(f"--- check_guess response.content ---")    
     logger.info(response.content)
@@ -82,10 +83,36 @@ def check_guess(user_guess: str, mystery_item: str) -> str:
 tools = [generate_mystery_item, check_guess, general_chat]
 tool_node = ToolNode(tools)
 llm_w_tools = llm.bind_tools(tools, tool_choice="any") # force it to choose a tool
+# END tools ------------------------------------------------------------
 
-def node_agent(state: AgentState) -> AgentState:
+# def node_manager(state: AgentState) -> AgentState:
+#     '''
+#     This node is responsible for starting/ending the game and chatting with the user.
+#     '''
+#     if state["game_started"] is True:
+#         return "game_has_started" #bypass this node and go to the managerrouter
+    
+#     system_message_content = '''
+#     You are a friendly host of a Mystery Item Game. The goal of the game is for the user to guess the mystery item.
+#     Your job is determine if the user is trying to start the game, end the game, or just chat.
+#     If the user is trying to start the game, respond with "start_game" only and nothing else.
+#     If the user is trying to end the game, respond with "end_game" only and nothing else.
+#     If the user is just chatting, respond in concise and friendly matter, no more than 100 words.
+#     '''
+#     prompt = [SystemMessage(content=system_message_content)] + state["messages"]
+#     response = llm.invoke(prompt)
+        
+#     logger.info(f"--- node_manager ---")
+#     logger.info(f"state: {state}")
+#     return {"messages": [response]}
+
+def node_game_agent(state: AgentState) -> AgentState:
+    '''
+    This node is responsible for the game logic, it only calls tools.
+    '''
+    
     system_message_content = '''
-    You are a friendly host of a Mystery Item Game. The goal of the game is for the user to guess the mystery item.
+    You are a Mystery Item Game tool agent. The goal of the game is for the user to guess the mystery item.
     The user has a limited number of questions to ask you, and a limited number of attempts to guess the item.
     You have the following tools to help you:
     - `generate_mystery_item`: Call this to start the game and get a new item.
@@ -96,10 +123,10 @@ def node_agent(state: AgentState) -> AgentState:
     IMPORTANT: You must choose a tool to use, if you are not sure, default to `general_chat`.
     '''
      
-    if state.get("mystery_item") is None:
+    if state["mystery_item"] is None:
         system_message_content += "\nThere is no mystery item yet. Your job is to generate one now by calling the `generate_mystery_item` tool."
     else:
-        system_message_content += f"\nThe mystery item has been set. The user can now ask yes/no questions or try to guess it. Do not reveal the item: {state['mystery_item']}"
+        system_message_content += f"\nThe mystery item has been set. Do not reveal the item: {state['mystery_item']}"
      
     system_message = SystemMessage(content=system_message_content)
     prompt = [system_message] + state["messages"] 
@@ -117,7 +144,7 @@ def router(state: AgentState) -> str:
     global router_cnt
     router_cnt += 1
     logger.info(f"--- router cnt {router_cnt} ---")
-    if router_cnt > 5: # Increased limit for safety
+    if router_cnt > 3: # Increased limit for safety
         logger.warning("Router limit reached, ending graph.")
         return END
     last_message = state["messages"][-1]
@@ -127,7 +154,7 @@ def router(state: AgentState) -> str:
     
     # If the last message is a ToolMessage, interrupt here to get user input.
     if isinstance(last_message, ToolMessage):
-        logger.info(f"--- router, tool finished, interrupting for user response ---")
+        logger.info(f"!!! router, tool finished, interrupting for user response !!!")
         return "__interrupt__"
 
     # If the agent has produced a response without a tool call, interrupt to show it to the user.
@@ -140,7 +167,7 @@ def router(state: AgentState) -> str:
 
 
 graph = StateGraph(AgentState)
-graph.add_node("agent", node_agent)
+graph.add_node("agent", node_game_agent)
 graph.add_node("tool_node", tool_node)
 
 graph.set_entry_point("agent")
@@ -176,6 +203,9 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     initial_state = {"messages": []}
     if user_message:
         initial_state["messages"].append(HumanMessage(content=user_message))
+        
+    print(f"--- initial_state ---")
+    print(initial_state)
 
     final_state = None
     for chunk in app.stream(initial_state, config=config):
