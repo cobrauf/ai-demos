@@ -33,19 +33,19 @@ def general_chat(state: AgentState) -> AgentState:
     
     mystery_item_context = ""
     if state.get("mystery_item"):
-        mystery_item_context = f"\nThe current mystery item is: {state['mystery_item']}. Answer yes/no questions about this item accurately."
+        mystery_item_context = f"\nThe current mystery item is: {state['mystery_item']}."
     
     system_message = SystemMessage(content=f'''
-    You are a friendly host of a Mystery Item Game. The goal of the game is for the user to guess the mystery item by asking yes/no questions to narrow down the answer.
+    You are a friendly host of a Mystery Item Game. The goal of the game is for the user to guess the mystery item by asking questions.
+    The user can ask questions about the mystery item, or try to guess the item. You have to discern if the user is asking a question or making a guess.
     Your goal is to guide the user to play the game, by providing helpful responses to their questions, or prompting them to ask a question.
-    If they chat about something unrelated to the game, you should still answer but also remind them to play.
+    If they chat about something unrelated to the game, you should still answer but then remind them to keep playing.
     Respond in concise and friendly matter, no more than 50 words.{mystery_item_context}
     ''')
  
     logger.info(f"--- general_chat_tool ---")
-    # logger.info(f"user_message: {user_message}")
     
-    # Filter messages to only include Human and AI messages to avoid serialization issues
+    # Filter messages to only include Human and AI messages and not tool messages
     filtered_messages = [
         msg for msg in state["messages"] 
         if isinstance(msg, (HumanMessage, AIMessage))
@@ -232,11 +232,11 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     return current_state.values["messages"]
 
 # output to a png
-# graph_png_bytes = app.get_graph().draw_mermaid_png()
-# output_filename = "./mystery_item_graph.png"
-# try:
-#     with open(output_filename, "wb") as f:
-#         f.write(graph_png_bytes)
-#     print(f"Graph saved successfully to {output_filename}")
-# except IOError as e:
-#     print(f"Error saving graph to file: {e}")
+graph_png_bytes = app.get_graph().draw_mermaid_png()
+output_filename = "./mystery_item_graph.png"
+try:
+    with open(output_filename, "wb") as f:
+        f.write(graph_png_bytes)
+    print(f"Graph saved successfully to {output_filename}")
+except IOError as e:
+    print(f"Error saving graph to file: {e}")
