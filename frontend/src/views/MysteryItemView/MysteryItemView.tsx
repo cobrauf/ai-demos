@@ -62,55 +62,10 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         text
       );
 
-      // Look for the general_chat tool result which contains the AI's actual response
-      const generalChatTool = response
-        .slice()
-        .reverse()
-        .find((msg: any) => msg.type === "tool" && msg.name === "general_chat");
-
-      let aiMessageText =
+      // Backend now returns a simple {response: "..."} format
+      const aiMessageText =
+        response.response ||
         "Sorry, I didn't get a valid response. Please try again.";
-
-      if (generalChatTool?.content) {
-        // Handle different response formats from the backend
-        const content = generalChatTool.content;
-
-        // Check if it's an error message
-        if (content.startsWith("Error:")) {
-          aiMessageText =
-            "I encountered an issue processing your request. Please try again.";
-        } else {
-          // Try multiple parsing strategies
-
-          // Strategy 1: Look for AIMessage(content="...") pattern
-          let match = content.match(/AIMessage\(content="([^"]+)"/);
-          if (match) {
-            aiMessageText = match[1];
-          } else {
-            // Strategy 2: Look for content="..." pattern
-            match = content.match(/content="([^"]+)"/);
-            if (match) {
-              aiMessageText = match[1];
-            } else {
-              // Strategy 3: Look for content='...' pattern
-              match = content.match(/content='([^']+)'/);
-              if (match) {
-                aiMessageText = match[1];
-              } else {
-                // Strategy 4: Try to extract any text between quotes
-                match = content.match(/"([^"]{10,})"/);
-                if (match) {
-                  aiMessageText = match[1];
-                } else {
-                  // Last resort: use a fallback message
-                  aiMessageText =
-                    "I'm having trouble responding right now. Please try again.";
-                }
-              }
-            }
-          }
-        }
-      }
 
       console.log("AI response:", aiMessageText);
 
