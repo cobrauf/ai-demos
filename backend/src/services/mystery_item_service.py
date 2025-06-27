@@ -70,7 +70,7 @@ def generate_mystery_item() -> dict:
     logger.info(f"--- generate_mystery_item response.content ---")
     logger.info(response.content)
     return {
-        "mystery_item": response.content,
+        "mystery_item": response.content.strip(),
         "game_started": True,
         "messages": [AIMessage(content="I've thought of a new mystery item! You can start asking questions or try to guess what it is.")]
     }
@@ -115,7 +115,8 @@ def answer_question(user_question: str, mystery_item: str) -> dict:
     The mystery item is: {mystery_item}.
     The user's question is: {user_question}.
     
-    Answer the question honestly with "yes" or "no" (you can add a brief explanation). Do not reveal the mystery item.
+    Answer the question honestly with "yes" or "no" PLUS some context, but do not reveal the mystery item!
+    IMPORTANT: Do not say the mystery item in your response!
     Keep your response concise and helpful for the guessing game.
     Examples:
     - Question: "Is it bigger than a car?" Answer: "Yes, it's much bigger than a car."
