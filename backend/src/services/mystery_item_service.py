@@ -34,17 +34,18 @@ class AgentState(TypedDict):
     
 # tools ------------------------------------------------------------
 @tool
-def general_chat(game_context: str) -> dict:
+def general_chat(user_message: str, game_context: str) -> dict:
     '''Use this tool for chat messages unrelated to the game.'''
     
     system_message = SystemMessage(content=general_chat_system_prompt + f"""
     
+    Current Game Context (for your information):
     {game_context}
     """)
  
     logger.info(f"--- general_chat_tool ---")
-    logger.info(f"system_message: {system_message}")
-    response = llm.invoke([system_message])
+    prompt = [system_message, HumanMessage(content=user_message)]
+    response = llm.invoke(prompt)
     logger.info(f"--- general_chat_tool response.content ---") 
     logger.info(f"response.content: {response.content}")
     return {"messages": [response]}
@@ -230,8 +231,8 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     if user_message:
         initial_state["messages"].append(HumanMessage(content=user_message))
         
-    print(f"--- initial_state ---")
-    print(initial_state)
+    # print(f"--- initial_state ---")
+    # print(initial_state)
 
     # The graph will end with the tool_node, which is the last step.
     # We can get the final state from the stream.
@@ -261,11 +262,11 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     return current_state.values["messages"]
 
 # output to a png
-graph_png_bytes = app.get_graph().draw_mermaid_png()
-output_filename = "./mystery_item_graph.png"
-try:
-    with open(output_filename, "wb") as f:
-        f.write(graph_png_bytes)
-    print(f"Graph saved successfully to {output_filename}")
-except IOError as e:
-    print(f"Error saving graph to file: {e}")
+# graph_png_bytes = app.get_graph().draw_mermaid_png()
+# output_filename = "./mystery_item_graph.png"
+# try:
+#     with open(output_filename, "wb") as f:
+#         f.write(graph_png_bytes)
+#     print(f"Graph saved successfully to {output_filename}")
+# except IOError as e:
+#     print(f"Error saving graph to file: {e}")
