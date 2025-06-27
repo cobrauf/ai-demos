@@ -8,9 +8,6 @@ from typing import Annotated, TypedDict, Sequence
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, ToolMessage, AIMessage
 from langgraph.graph.message import add_messages
 
-def add_count(left: int, right: int) -> int:
-    """Custom reducer to add counts together."""
-    return left + right
 from langgraph.graph import StateGraph, END
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode
@@ -32,19 +29,17 @@ class AgentState(TypedDict):
     game_started: bool = False
     mystery_item: str | None = None
     guess_correct: str | None = None
-    question_count: Annotated[int, add_count] = 0
-    guess_count: Annotated[int, add_count] = 0
     messages: Annotated[Sequence[BaseMessage], add_messages]
     
 # tools ------------------------------------------------------------
 @tool
-def general_chat(user_message: str, game_context: str) -> dict:
+def general_chat(user_message: str, history: str) -> dict:
     '''Use this tool for chat messages unrelated to the game.'''
     
     system_message = SystemMessage(content=general_chat_system_prompt + f"""
     
-    Current Game Context (for your information):
-    {game_context}
+    Current Conversation History (for your information):
+    {history}
     """)
  
     logger.info(f"--- general_chat_tool ---")
@@ -69,13 +64,14 @@ def generate_mystery_item() -> dict:
     }
 
 @tool
-def check_guess(user_guess: str, mystery_item: str, game_context: str) -> dict:
+def check_guess(user_guess: str, mystery_item: str, history: str) -> dict:
     '''Use this tool to check if the user's guess is correct.'''
     
     system_message = SystemMessage(content=check_guess_system_prompt + f"""
     The user's guess is: {user_guess}.
     
-    {game_context}
+    Conversation History:
+    {history}
     """)
     
     response = llm.invoke([system_message])
@@ -93,18 +89,18 @@ def check_guess(user_guess: str, mystery_item: str, game_context: str) -> dict:
         
     return {
         "guess_correct": "correct" if is_correct else "incorrect",
-        "guess_count": 1,  # increment guess count
         "messages": [message]
     }
 
 @tool
-def answer_question(user_question: str, game_context: str) -> dict:
+def answer_question(user_question: str, mystery_item: str, history: str) -> dict:
     '''Use this tool to answer questions about the mystery item without revealing what it is.'''
     
     system_message = SystemMessage(content=answer_question_system_prompt + f"""
     The user's question is: {user_question}.
     
-    {game_context}
+    Conversation History:
+    {history}
     """)
     
     response = llm.invoke([system_message])
@@ -112,19 +108,17 @@ def answer_question(user_question: str, game_context: str) -> dict:
     logger.info(f"user_question: {user_question}")
     logger.info(f"response.content: {response.content}")
     
-    return {
-        "question_count": 1,  # increment question count
-        "messages": [response]
-    }
+    return {"messages": [response]}
 
 @tool
 def reset_game() -> dict:
     """Call this tool when the user wants to play again or start a new game, but wants to continue the conversation."""
+    
+    logger.info(f"--- reset_game ---")
+    
     return {
         "mystery_item": None,
         "guess_correct": None,
-        "question_count": 0,
-        "guess_count": 0,
         "game_started": False,
         "messages": [AIMessage(content="Okay, let's play again! I've cleared the board. Say 'start game' to get a new item.")]
     }
@@ -135,47 +129,45 @@ llm_w_tools = llm.bind_tools(tools, tool_choice="any") # force it to choose a to
 # END tools ------------------------------------------------------------
 
 # Helper functions ------------------------------------------------------------
-def construct_game_state(state: AgentState) -> dict:
+def format_history(messages: Sequence[BaseMessage]) -> str:
     """
-    Construct the game state from the current state. Filter for AI and Human messages.
+    Format conversation history for tools to use as context.
+    Filters for HumanMessages and parses content from ToolMessages.
     """
-    return {
-        "game_started": state["game_started"],
-        "mystery_item": state["mystery_item"],
-        "guess_correct": state["guess_correct"],
-        "question_count": state["question_count"],
-        "guess_count": state["guess_count"],
-        "messages": [
-            msg for msg in state["messages"] 
-            if isinstance(msg, (HumanMessage, AIMessage))
-        ]
-    }
-
-def format_game_context(state: AgentState) -> str:
-    """
-    Format game state and conversation history for tools to use as context.
-    """
-    game_state = construct_game_state(state)
+    import re
     
-    # Format recent conversation history
-    recent_messages = game_state["messages"][-5:] if game_state["messages"] else []
+    logger.info(f"--- DEBUG: Total messages in state: {len(messages)} ---")
+    for i, msg in enumerate(messages):
+        logger.info(f"Message {i}: Type={type(msg).__name__}, Content={getattr(msg, 'content', 'NO_CONTENT')[:100]}...")
+    
+    filtered_messages = []
+    
+    for msg in messages:
+        if isinstance(msg, HumanMessage):
+            filtered_messages.append(msg)
+        elif isinstance(msg, ToolMessage):
+            # The AI response from a tool is inside a ToolMessage
+            if hasattr(msg, 'content') and isinstance(msg.content, str):
+                content_str = msg.content.strip()
+                
+                # Regex to find content inside AIMessage(content='...')
+                match = re.search(r"content=['\"](.*?)['\"]", content_str, re.DOTALL)
+                
+                if match:
+                    extracted_content = match.group(1)
+                    # Clean up common escape sequences
+                    extracted_content = extracted_content.replace('\\n', '\n').replace('\\"', '"').replace("\\'", "'")
+                    filtered_messages.append(AIMessage(content=extracted_content))
+
+    # Format recent conversation history (last 20 messages)
+    recent_messages = filtered_messages[-20:] if filtered_messages else []
     conversation_history = "\n".join([
         f"{msg.__class__.__name__}: {msg.content}" 
         for msg in recent_messages
     ])
-    
-    context = f"""
-    Game State:
-    - Mystery Item: {game_state['mystery_item']}
-    - Game Started: {game_state['game_started']}
-    - Questions Asked: {game_state['question_count']}
-    - Guesses Made: {game_state['guess_count']}
-    - Last Guess Result: {game_state['guess_correct']}
-
-    Recent Conversation:
-    {conversation_history}
-    """
-    return context.strip()
+    logger.info(f"--- conversation_history ---")
+    logger.info(conversation_history)
+    return conversation_history.strip()
 # End helper functions ------------------------------------------------------------
 
 def node_game_agent(state: AgentState) -> AgentState:
@@ -184,15 +176,25 @@ def node_game_agent(state: AgentState) -> AgentState:
     '''
     system_message_content = game_agent_system_prompt
     
-    # Include formatted game context if game is started
-    if state.get("mystery_item"):
-        game_context = format_game_context(state)
-        mystery_item = state.get('mystery_item')
-        system_message_content += f"""
-        Here is the current game context. Use it to inform your tool calls.
-        {game_context}
-        """
-     
+    # Include formatted history and mystery item if game is started
+    # if state.get("mystery_item"):
+    #     history = format_history(state["messages"])
+    #     mystery_item = state.get('mystery_item')
+    #     system_message_content += f"""
+    #     Here is the current mystery item and conversation history. Use them to inform your tool calls.
+    #     Mystery Item: {mystery_item}
+        
+    #     Conversation History:
+    #     {history}
+    #     """
+
+    history = format_history(state["messages"])
+    system_message_content += f"""
+    Conversation History:
+    {history}
+    """
+    
+    print(f"system_message_content: {system_message_content}")
     system_message = SystemMessage(content=system_message_content)
     prompt = [system_message] + state["messages"] 
     response = llm_w_tools.invoke(prompt)

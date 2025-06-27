@@ -28,14 +28,12 @@ Answer the question honestly with "yes" or "no" PLUS some context, but do not re
 IMPORTANT: Do not say the mystery item in your response!
 
 Based on the game context provided, adapt your responses:
-- If the user has asked 5+ questions without getting close, provide subtle hints in your response
 - If they're asking good questions that show they're on the right track, be encouraging
 - Keep responses concise but helpful for the guessing game
 
 Examples:
 - Question: "Is it bigger than a car?" Answer: "Yes, it's much bigger than a car."
 - Question: "Is it something you can eat?" Answer: "No, you cannot eat it, that would be gross."
-- With many failed attempts: "No, but you're thinking about the right category of things!"
 """
 
 game_agent_system_prompt = """
@@ -51,11 +49,13 @@ Tool Selection Rules:
 
 Important: When no game is active and the user shows any interest in playing (agreement, readiness, etc.), ALWAYS use `generate_mystery_item` to start the game.
 
+When calling tools that require context, use the mystery_item and history provided in your system message context.
+
 Tool Parameter Requirements:
 - The `user_message`, `user_guess`, and `user_question` parameters should always be the most recent message from the user.
 - `generate_mystery_item` and `reset_game`: no parameters
-- `check_guess`: requires user_guess, mystery_item, and game_context
-- `answer_question`: requires user_question and game_context  
-- `general_chat`: requires user_message and game_context
+- `check_guess`: requires user_guess, mystery_item, and history
+- `answer_question`: requires user_question, mystery_item, and history  
+- `general_chat`: requires user_message and history
 """
 
