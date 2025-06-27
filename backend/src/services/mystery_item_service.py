@@ -188,7 +188,9 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
         # We need to get the full state from the checkpointer to get the accumulated messages.
         current_state = app.get_state(config)
         logger.info(f"--- final_state (from tool_node) ---")
-        logger.info(current_state.values)
+        # logger.info(current_state.values)
+        logger.info(f"--- final_state (from tool_node) messages     ---")
+        logger.info(current_state.values["messages"])
         return current_state.values["messages"]
 
     # Fallback to get the current state if the last chunk wasn't the tool node

@@ -1,8 +1,9 @@
 import logging
 from fastapi import APIRouter
 from pydantic import BaseModel
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from src.services import mystery_item_service
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -31,18 +32,17 @@ def invoke_mystery_item(request: ChatRequest):
         user_message=request.message
     )
     
-    # Extract the final AI response from the general_chat tool
     ai_response = "Sorry, I couldn't generate a response."
-    
+    # Look for the most recent ToolMessage and extract AIMessage content from it
     for msg in reversed(messages):
-        if hasattr(msg, 'name') and msg.name == 'general_chat' and hasattr(msg, 'content'):
-            # Parse the AI response from the tool content
-            import re
-            match = re.search(r"AIMessage\(content='([^']+)'", msg.content)
+        if isinstance(msg, ToolMessage):
+            match = re.search(r'content="([^"]+)"', msg.content)
             if match:
-                ai_response = match.group(1).replace('\\n', '\n')
+                ai_response = match.group(1)
                 break
+        elif isinstance(msg, AIMessage) and msg.content.strip():
+            ai_response = msg.content
+            break
     
-    logger.info(f"--- extracted AI response: {ai_response} ---")
     return {"response": ai_response}
 
