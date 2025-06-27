@@ -32,27 +32,19 @@ class AgentState(TypedDict):
     guess_count: int = 0
     messages: Annotated[Sequence[BaseMessage], add_messages]
     
-# START tools ------------------------------------------------------------
+# tools ------------------------------------------------------------
 @tool
-def general_chat(state: AgentState) -> AgentState:
-    '''Use this tool for chat messages, whether the user is asking a question or making a guess, or just chatting about something unrelated to the game.'''
+def general_chat(game_context: str) -> dict:
+    '''Use this tool for chat messages unrelated to the game.'''
     
-    mystery_item_context = ""
-    if state.get("mystery_item"):
-        mystery_item_context = f"\nThe current mystery item is: {state['mystery_item']}."
+    system_message = SystemMessage(content=general_chat_system_prompt + f"""
     
-    system_message = SystemMessage(content=general_chat_system_prompt + mystery_item_context)
+    {game_context}
+    """)
  
     logger.info(f"--- general_chat_tool ---")
-    
-    # Filter messages to only include Human and AI messages and not tool messages
-    filtered_messages = [
-        msg for msg in state["messages"] 
-        if isinstance(msg, (HumanMessage, AIMessage))
-    ]
-    
-    prompt = [system_message] + filtered_messages
-    response = llm.invoke(prompt)
+    logger.info(f"system_message: {system_message}")
+    response = llm.invoke([system_message])
     logger.info(f"--- general_chat_tool response.content ---") 
     logger.info(f"response.content: {response.content}")
     return {"messages": [response]}
@@ -182,34 +174,28 @@ def format_game_context(state: AgentState) -> str:
     {conversation_history}
     """
     return context.strip()
-
 # End helper functions ------------------------------------------------------------
 
 def node_game_agent(state: AgentState) -> AgentState:
     '''
     This node is responsible for the game logic, it only calls tools.
     '''
-    
-    # Use a local variable to build the prompt for this specific call.
     system_message_content = game_agent_system_prompt
     
     # Include formatted game context if game is started
     if state.get("mystery_item"):
         game_context = format_game_context(state)
         mystery_item = state.get('mystery_item')
-        
-        # Append the game context and tool-calling instructions to the prompt.
         system_message_content += f"""
+        Here is the current game context. Use it to inform your tool calls.
+        ---
+        {game_context}
+        ---
 
-    Here is the current game context. Use it to inform your tool calls.
-    ---
-    {game_context}
-    ---
-
-    When calling a tool, provide all required parameters.
-    - For `check_guess`, the `mystery_item` is "{mystery_item}".
-    - For both `check_guess` and `answer_question`, use the full game context provided above for the `game_context` parameter.
-    """
+        When calling a tool, provide all required parameters.
+- For `check_guess`, the `mystery_item` is "{mystery_item}".
+- For `check_guess`, `answer_question`, and `general_chat`, use the full game context provided above for the `game_context` parameter.
+        """
      
     system_message = SystemMessage(content=system_message_content)
     prompt = [system_message] + state["messages"] 

@@ -47,8 +47,12 @@ Tool Selection Rules:
   (Note that user phrasing can be varied, eg. "I give up", or "exit game", etc)
 - If the user is making a direct guess about what the item is (e.g., "is it a car?", "is it a dog?", "car", "dog"), use `check_guess`.
 - If the user is asking a question about properties of the item (e.g., "is it bigger than a house?", "can you eat it?", "does it have wheels?"), use `answer_question`.
-- For all other conversational turns, use `general_chat`.
+- For all other conversational turns (jokes, general chat, unrelated questions), use `general_chat`.
 
-IMPORTANT: Some tools require the current game context as the `game_context` parameter. The game context will be provided to you in the system prompt.
+Tool Parameter Requirements:
+- `generate_mystery_item` and `reset_game`: no parameters
+- `check_guess`: requires user_guess, mystery_item, and game_context
+- `answer_question`: requires user_question and game_context  
+- `general_chat`: requires only game_context
 """
 
