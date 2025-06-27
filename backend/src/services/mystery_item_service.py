@@ -72,13 +72,17 @@ def generate_mystery_item() -> dict:
     }
 
 @tool
-def check_guess(user_guess: str, mystery_item: str) -> dict:
+def check_guess(user_guess: str, game_context: str) -> dict:
     '''Use this tool to check if the user's guess is correct.'''
     
     system_message = SystemMessage(content=check_guess_system_prompt + f"""
-    The mystery item is: {mystery_item}.
     The user's guess is: {user_guess}.
+    
+    {game_context}
     """)
+    
+    print(f")))) check guess system message ))))")
+    print(system_message)
     
     response = llm.invoke([system_message])
     logger.info(f"--- check_guess ---")
@@ -87,6 +91,14 @@ def check_guess(user_guess: str, mystery_item: str) -> dict:
     logger.info(response.content)
     
     is_correct = "correct" in response.content.lower()
+    
+    # Extract mystery item from game context for the success message
+    mystery_item = "the mystery item"
+    if "Mystery Item:" in game_context:
+        try:
+            mystery_item = game_context.split("Mystery Item:")[1].split("\n")[0].strip()
+        except:
+            pass
     
     if is_correct:
         message = AIMessage(content=f"You guessed it! The mystery item was '{mystery_item}'. Congratulations!")
@@ -100,18 +112,21 @@ def check_guess(user_guess: str, mystery_item: str) -> dict:
     }
 
 @tool
-def answer_question(user_question: str, mystery_item: str) -> dict:
-    '''Use this tool to answer yes/no questions about the mystery item without revealing what it is.'''
+def answer_question(user_question: str, game_context: str) -> dict:
+    '''Use this tool to answer questions about the mystery item without revealing what it is.'''
     
     system_message = SystemMessage(content=answer_question_system_prompt + f"""
-    The mystery item is: {mystery_item}.
     The user's question is: {user_question}.
+    
+    {game_context}
+    
+    INSTRUCTIONS: If the user has asked many questions or made several incorrect guesses, 
+    consider providing a subtle hint to help them get closer to the answer.
     """)
     
     response = llm.invoke([system_message])
     logger.info(f"--- answer_question ---")
     logger.info(f"user_question: {user_question}")
-    logger.info(f"mystery_item: {mystery_item}")
     logger.info(f"response.content: {response.content}")
     
     return {
@@ -136,15 +151,70 @@ tool_node = ToolNode(tools)
 llm_w_tools = llm.bind_tools(tools, tool_choice="any") # force it to choose a tool
 # END tools ------------------------------------------------------------
 
+# Helper functions ------------------------------------------------------------
+def construct_game_state(state: AgentState) -> dict:
+    """
+    Construct the game state from the current state. Filter for AI and Human messages.
+    """
+    return {
+        "game_started": state["game_started"],
+        "mystery_item": state["mystery_item"],
+        "guess_correct": state["guess_correct"],
+        "question_count": state["question_count"],
+        "guess_count": state["guess_count"],
+        "messages": [
+            msg for msg in state["messages"] 
+            if isinstance(msg, (HumanMessage, AIMessage))
+        ]
+    }
+
+def format_game_context(state: AgentState) -> str:
+    """
+    Format game state and conversation history for tools to use as context.
+    """
+    game_state = construct_game_state(state)
+    
+    # Format recent conversation history
+    recent_messages = game_state["messages"][-5:] if game_state["messages"] else []
+    conversation_history = "\n".join([
+        f"{msg.__class__.__name__}: {msg.content}" 
+        for msg in recent_messages
+    ])
+    
+    context = f"""
+Game State:
+- Mystery Item: {game_state['mystery_item']}
+- Game Started: {game_state['game_started']}
+- Questions Asked: {game_state['question_count']}
+- Guesses Made: {game_state['guess_count']}
+- Last Guess Result: {game_state['guess_correct']}
+
+Recent Conversation:
+{conversation_history}
+"""
+    return context.strip()
+
+# End helper functions ------------------------------------------------------------
+
 def node_game_agent(state: AgentState) -> AgentState:
     '''
     This node is responsible for the game logic, it only calls tools.
     '''
     
-    system_message_content = game_agent_system_prompt
-     
+    
+    # Include formatted game context if game is started
     if state.get("mystery_item"):
-        system_message_content += f"\nThe current mystery item is: {state['mystery_item']}. Do not reveal it."
+        game_context = format_game_context(state)
+        game_agent_system_prompt += f"""
+
+Current Game Context:
+{game_context}
+
+IMPORTANT: When calling check_guess or answer_question tools, pass the following formatted game context:
+```
+{game_context}
+```
+"""
      
     system_message = SystemMessage(content=system_message_content)
     prompt = [system_message] + state["messages"] 
@@ -200,7 +270,7 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
         logger.info(f"--- final_state (from tool_node) ---")
         # logger.info(current_state.values)
         logger.info(f"--- final_state (from tool_node) messages     ---")
-        logger.info(current_state.values["messages"])
+        # logger.info(current_state.values["messages"])
         return current_state.values["messages"]
 
     # Fallback to get the current state if the last chunk wasn't the tool node
