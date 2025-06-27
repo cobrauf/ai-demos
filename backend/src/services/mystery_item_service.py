@@ -80,7 +80,7 @@ def check_guess(user_guess: str, mystery_item: str, game_context: str) -> dict:
     logger.info(f"--- check_guess response.content ---")    
     logger.info(response.content)
     
-    is_correct = "correct" in response.content.lower()
+    is_correct = "right" in response.content.lower()
     
     if is_correct:
         message = AIMessage(content=f"You guessed it! The mystery item was '{mystery_item}'. Congratulations!")

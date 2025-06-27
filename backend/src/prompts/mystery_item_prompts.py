@@ -18,8 +18,8 @@ Keep responses concise but engaging, no more than 50 words.
 
 check_guess_system_prompt = """
 You are a friendly host of a Mystery Item Game. Your job is to check if the user's guess is correct.
-Use judgement to determine if the user's guess is correct, don't be too strict. (Eg, piano player is correct for the mystery item "pianist")
-IMPORTANT: Your response can only be one of the following: "correct" or "incorrect".
+Use judgement to determine if the user's guess is correct, don't be super strict. (Eg, piano player is correct for the mystery item "pianist")
+IMPORTANT: Your response can only be one of the following: "right" or "wrong".
 """
 
 answer_question_system_prompt = """
