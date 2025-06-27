@@ -101,9 +101,6 @@ def answer_question(user_question: str, game_context: str) -> dict:
     The user's question is: {user_question}.
     
     {game_context}
-    
-    INSTRUCTIONS: If the user has asked many questions or made several incorrect guesses, 
-    consider providing a subtle hint to help them get closer to the answer.
     """)
     
     response = llm.invoke([system_message])
@@ -189,13 +186,7 @@ def node_game_agent(state: AgentState) -> AgentState:
         mystery_item = state.get('mystery_item')
         system_message_content += f"""
         Here is the current game context. Use it to inform your tool calls.
-        ---
         {game_context}
-        ---
-
-        When calling a tool, provide all required parameters.
-- For `check_guess`, the `mystery_item` is "{mystery_item}".
-- For `check_guess`, `answer_question`, and `general_chat`, use the full game context provided above for the `game_context` parameter.
         """
      
     system_message = SystemMessage(content=system_message_content)
@@ -246,13 +237,7 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
 
     # The last chunk will be the output of the 'tool_node'
     if final_state and "tool_node" in final_state:
-        # The tool node updates the state, including messages.
-        # We need to get the full state from the checkpointer to get the accumulated messages.
         current_state = app.get_state(config)
-        logger.info(f"--- final_state (from tool_node) ---")
-        # logger.info(current_state.values)
-        logger.info(f"--- final_state (from tool_node) messages     ---")
-        # logger.info(current_state.values["messages"])
         return current_state.values["messages"]
 
     # Fallback to get the current state if the last chunk wasn't the tool node
