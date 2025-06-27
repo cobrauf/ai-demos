@@ -102,7 +102,35 @@ def check_guess(user_guess: str, mystery_item: str) -> dict:
         
     return {
         "guess_correct": "correct" if is_correct else "incorrect",
+        "guess_count": 1,  # increment guess count
         "messages": [message]
+    }
+
+@tool
+def answer_question(user_question: str, mystery_item: str) -> dict:
+    '''Use this tool to answer yes/no questions about the mystery item without revealing what it is.'''
+    
+    system_message = SystemMessage(content=f'''
+    You are a helpful assistant running a mystery item guessing game. Your job is to answer the user's question about the mystery item.
+    The mystery item is: {mystery_item}.
+    The user's question is: {user_question}.
+    
+    Answer the question honestly with "yes" or "no" (you can add a brief explanation). Do not reveal the mystery item.
+    Keep your response concise and helpful for the guessing game.
+    Examples:
+    - Question: "Is it bigger than a car?" Answer: "Yes, it's much bigger than a car."
+    - Question: "Is it something you can eat?" Answer: "No, you cannot eat it."
+    ''')
+    
+    response = llm.invoke([system_message])
+    logger.info(f"--- answer_question ---")
+    logger.info(f"user_question: {user_question}")
+    logger.info(f"mystery_item: {mystery_item}")
+    logger.info(f"response.content: {response.content}")
+    
+    return {
+        "question_count": 1,  # increment question count
+        "messages": [response]
     }
 
 @tool
@@ -117,7 +145,7 @@ def reset_game() -> dict:
         "messages": [AIMessage(content="Okay, let's play again! I've cleared the board. Say 'start game' to get a new item.")]
     }
 
-tools = [generate_mystery_item, check_guess, general_chat, reset_game]
+tools = [generate_mystery_item, check_guess, answer_question, general_chat, reset_game]
 tool_node = ToolNode(tools)
 llm_w_tools = llm.bind_tools(tools, tool_choice="any") # force it to choose a tool
 # END tools ------------------------------------------------------------
@@ -130,7 +158,8 @@ def node_game_agent(state: AgentState) -> AgentState:
     system_message_content = '''You are a Mystery Item Game agent. Your only job is to decide which tool to use based on the user's message. You must always choose one tool.
 - If the user wants to start a new game, use `generate_mystery_item`.
 - If the user wants to start over or stop playing while a game is in progress, use the `reset_game` tool.
-- If the user is trying to guess the item, or ask a question about it (e.g., "is it a car?" or "is it bigger than a house?"), use `check_guess`.
+- If the user is making a direct guess about what the item is (e.g., "is it a car?", "is it a dog?", "car", "dog"), use `check_guess`.
+- If the user is asking a question about properties of the item (e.g., "is it bigger than a house?", "can you eat it?", "does it have wheels?"), use `answer_question`.
 - For all other conversational turns, use `general_chat`.'''
      
     if state.get("mystery_item"):
