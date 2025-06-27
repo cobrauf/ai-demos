@@ -53,8 +53,8 @@ def invoke_mystery_item(request: ChatRequest):
             if not match:
                 match = re.search(r'content="((?:[^"\\]|\\.)*)"', msg.content, re.DOTALL)
             if match:
-                # Unescape the captured content
-                ai_response = match.group(1).replace("\\'", "'").replace('\\"', '"').replace("\\\\", "\\").strip()
+                # Unescape the captured content and convert newlines
+                ai_response = match.group(1).replace("\\'", "'").replace('\\"', '"').replace("\\\\", "\\").replace("\\n", "\n").strip()
                 break
         elif isinstance(msg, AIMessage) and msg.content.strip():
             ai_response = msg.content.strip()

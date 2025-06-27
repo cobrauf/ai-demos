@@ -7,6 +7,10 @@ from src.config.llm_config import llm
 from typing import Annotated, TypedDict, Sequence 
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, ToolMessage, AIMessage
 from langgraph.graph.message import add_messages
+
+def add_count(left: int, right: int) -> int:
+    """Custom reducer to add counts together."""
+    return left + right
 from langgraph.graph import StateGraph, END
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode
@@ -28,8 +32,8 @@ class AgentState(TypedDict):
     game_started: bool = False
     mystery_item: str | None = None
     guess_correct: str | None = None
-    question_count: int = 0
-    guess_count: int = 0
+    question_count: Annotated[int, add_count] = 0
+    guess_count: Annotated[int, add_count] = 0
     messages: Annotated[Sequence[BaseMessage], add_messages]
     
 # tools ------------------------------------------------------------
@@ -216,23 +220,12 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     logger.info(f"--- invoke_graph ---")
     config = {"configurable": {"thread_id": session_id}}
     
-    # The input to stream is the input for the entry point node (`agent`).
-    # The `add_messages` reducer will add our new message to the existing ones.
     initial_state = {"messages": []}
     if user_message:
         initial_state["messages"].append(HumanMessage(content=user_message))
-        
-    # print(f"--- initial_state ---")
-    # print(initial_state)
 
-    # The graph will end with the tool_node, which is the last step.
-    # We can get the final state from the stream.
-    # The `stream` method returns an iterator of all states. We just want the final one.
     final_state = None
     for chunk in app.stream(initial_state, config=config):
-        # chunk is a dictionary with the node name as key and the output as value
-        # logger.info(f"--- streaming chunk ---")
-        # logger.info(chunk)
         final_state = chunk
 
     # The last chunk will be the output of the 'tool_node'
@@ -246,7 +239,7 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     logger.info(current_state)
     return current_state.values["messages"]
 
-# output to a png
+# output to a png ---------------------------------------------------
 # graph_png_bytes = app.get_graph().draw_mermaid_png()
 # output_filename = "./mystery_item_graph.png"
 # try:
