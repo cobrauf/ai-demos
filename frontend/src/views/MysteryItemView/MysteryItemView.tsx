@@ -109,15 +109,6 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
             text={msg.text}
           />
         ))}
-        <Button variant="base" onClick={() => handleSendMessage("start game")}>
-          Start Game
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={() => handleSendMessage("Is it a orange?")}
-        >
-          Is it a orange?
-        </Button>{" "}
         {/* <Button variant="cancel">cancel</Button> */}
         {/* <Button variant="disabled">disabled</Button> */}
         {/* <Button variant="icon">icon</Button> */}

@@ -12,7 +12,8 @@ from langgraph.graph import StateGraph, END
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
-from src.prompts.mystery_item_prompts import (
+from src.utils.mystery_item_helpers import format_history_for_prompt
+from src.utils.mystery_item_prompts import (
     generate_mystery_item_system_prompt,
     general_chat_system_prompt,
     check_guess_system_prompt,
@@ -111,16 +112,21 @@ def answer_question(user_question: str, mystery_item: str, history: str) -> dict
     return {"messages": [response]}
 
 @tool
-def reset_game() -> dict:
+def reset_game(mystery_item: str | None = None) -> dict:
     """Call this tool when the user wants to play again or start a new game, but wants to continue the conversation."""
     
     logger.info(f"--- reset_game ---")
     
+    if mystery_item:
+        message = f"Okay, let's play again! The mystery item was '{mystery_item}'. I've cleared the board. Say 'start game' to get a new item."
+    else:
+        message = "Okay, let's play again! I've cleared the board. Say 'start game' to get a new item."
+        
     return {
         "mystery_item": None,
         "guess_correct": None,
         "game_started": False,
-        "messages": [AIMessage(content="Okay, let's play again! I've cleared the board. Say 'start game' to get a new item.")]
+        "messages": [AIMessage(content=message)]
     }
 
 tools = [generate_mystery_item, check_guess, answer_question, general_chat, reset_game]
@@ -128,73 +134,28 @@ tool_node = ToolNode(tools)
 llm_w_tools = llm.bind_tools(tools, tool_choice="any") # force it to choose a tool
 # END tools ------------------------------------------------------------
 
-# Helper functions ------------------------------------------------------------
-def format_history(messages: Sequence[BaseMessage]) -> str:
-    """
-    Format conversation history for tools to use as context.
-    Filters for HumanMessages and parses content from ToolMessages.
-    """
-    import re
-    
-    logger.info(f"--- DEBUG: Total messages in state: {len(messages)} ---")
-    for i, msg in enumerate(messages):
-        logger.info(f"Message {i}: Type={type(msg).__name__}, Content={getattr(msg, 'content', 'NO_CONTENT')[:100]}...")
-    
-    filtered_messages = []
-    
-    for msg in messages:
-        if isinstance(msg, HumanMessage):
-            filtered_messages.append(msg)
-        elif isinstance(msg, ToolMessage):
-            # The AI response from a tool is inside a ToolMessage
-            if hasattr(msg, 'content') and isinstance(msg.content, str):
-                content_str = msg.content.strip()
-                
-                # Regex to find content inside AIMessage(content='...')
-                match = re.search(r"content=['\"](.*?)['\"]", content_str, re.DOTALL)
-                
-                if match:
-                    extracted_content = match.group(1)
-                    # Clean up common escape sequences
-                    extracted_content = extracted_content.replace('\\n', '\n').replace('\\"', '"').replace("\\'", "'")
-                    filtered_messages.append(AIMessage(content=extracted_content))
-
-    # Format recent conversation history (last 20 messages)
-    recent_messages = filtered_messages[-20:] if filtered_messages else []
-    conversation_history = "\n".join([
-        f"{msg.__class__.__name__}: {msg.content}" 
-        for msg in recent_messages
-    ])
-    logger.info(f"--- conversation_history ---")
-    logger.info(conversation_history)
-    return conversation_history.strip()
-# End helper functions ------------------------------------------------------------
-
 def node_game_agent(state: AgentState) -> AgentState:
     '''
     This node is responsible for the game logic, it only calls tools.
     '''
     system_message_content = game_agent_system_prompt
     
-    # Include formatted history and mystery item if game is started
-    # if state.get("mystery_item"):
-    #     history = format_history(state["messages"])
-    #     mystery_item = state.get('mystery_item')
-    #     system_message_content += f"""
-    #     Here is the current mystery item and conversation history. Use them to inform your tool calls.
-    #     Mystery Item: {mystery_item}
-        
-    #     Conversation History:
-    #     {history}
-    #     """
-
-    history = format_history(state["messages"])
+    history = format_history_for_prompt(state["messages"])
+    
     system_message_content += f"""
-    Conversation History:
+
+    Here is the conversation history:
     {history}
     """
+
+    if state.get("mystery_item"):
+        mystery_item = state.get('mystery_item')
+        system_message_content += f"""
+
+        The current mystery item is: {mystery_item}. Use this when calling tools that require it.
+        """
     
-    print(f"system_message_content: {system_message_content}")
+    # print(f"system_message_content: {system_message_content}")
     system_message = SystemMessage(content=system_message_content)
     prompt = [system_message] + state["messages"] 
     response = llm_w_tools.invoke(prompt)

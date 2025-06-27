@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from src.services import mystery_item_service
+from src.utils.mystery_item_helpers import extract_last_ai_response
 import re
 import json
 
@@ -33,31 +34,6 @@ def invoke_mystery_item(request: ChatRequest):
         user_message=request.message
     )
     
-    ai_response = "Sorry, I couldn't generate a response."
-    for msg in reversed(messages):
-        if isinstance(msg, ToolMessage):
-            # Try JSON first
-            try:
-                tool_data = json.loads(msg.content)
-                if 'messages' in tool_data and tool_data['messages']:
-                    ai_message = tool_data['messages'][0]
-                    if isinstance(ai_message, dict) and 'content' in ai_message:
-                        ai_response = ai_message['content'].strip()
-                        break
-            except Exception:
-                pass
-            # Fallback: match content='...' or content="..." across newlines and apostrophes
-            import re
-            # First try single quotes, then double quotes
-            match = re.search(r"content='((?:[^'\\]|\\.)*)'", msg.content, re.DOTALL)
-            if not match:
-                match = re.search(r'content="((?:[^"\\]|\\.)*)"', msg.content, re.DOTALL)
-            if match:
-                # Unescape the captured content and convert newlines
-                ai_response = match.group(1).replace("\\'", "'").replace('\\"', '"').replace("\\\\", "\\").replace("\\n", "\n").strip()
-                break
-        elif isinstance(msg, AIMessage) and msg.content.strip():
-            ai_response = msg.content.strip()
-            break
+    ai_response = extract_last_ai_response(messages)
     return {"response": ai_response}
 
