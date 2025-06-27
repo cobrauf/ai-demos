@@ -11,7 +11,6 @@ from langgraph.graph import StateGraph, END
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
-from langgraph.types import interrupt, Command
 
 logger = logging.getLogger(__name__)
 
@@ -70,10 +69,14 @@ def generate_mystery_item() -> dict:
     response = llm.invoke([system_message])
     logger.info(f"--- generate_mystery_item response.content ---")
     logger.info(response.content)
-    return {"mystery_item": response.content}
+    return {
+        "mystery_item": response.content,
+        "game_started": True,
+        "messages": [AIMessage(content="I've thought of a new mystery item! You can start asking questions or try to guess what it is.")]
+    }
 
 @tool
-def check_guess(user_guess: str, mystery_item: str) -> str:
+def check_guess(user_guess: str, mystery_item: str) -> dict:
     '''Use this tool to check if the user's guess is correct.'''
     
     system_message = SystemMessage(content=f'''
@@ -86,106 +89,65 @@ def check_guess(user_guess: str, mystery_item: str) -> str:
     
     response = llm.invoke([system_message])
     logger.info(f"--- check_guess ---")
-    # logger.info(f"state: {state}")
     logger.info(f"response: {response}")
     logger.info(f"--- check_guess response.content ---")    
     logger.info(response.content)
-    return {"guess_correct": response.content}
+    
+    is_correct = "correct" in response.content.lower()
+    
+    if is_correct:
+        message = AIMessage(content=f"You guessed it! The mystery item was '{mystery_item}'. Congratulations!")
+    else:
+        message = AIMessage(content="That's not it. Keep trying or ask another question!")
+        
+    return {
+        "guess_correct": "correct" if is_correct else "incorrect",
+        "messages": [message]
+    }
 
-tools = [generate_mystery_item, check_guess, general_chat]
-game_tool_node = ToolNode([generate_mystery_item, check_guess])
-chat_tool_node = ToolNode([general_chat])
+@tool
+def reset_game() -> dict:
+    """Call this tool when the user wants to play again or start a new game, but wants to continue the conversation."""
+    return {
+        "mystery_item": None,
+        "guess_correct": None,
+        "question_count": 0,
+        "guess_count": 0,
+        "game_started": False,
+        "messages": [AIMessage(content="Okay, let's play again! I've cleared the board. Say 'start game' to get a new item.")]
+    }
+
+tools = [generate_mystery_item, check_guess, general_chat, reset_game]
+tool_node = ToolNode(tools)
 llm_w_tools = llm.bind_tools(tools, tool_choice="any") # force it to choose a tool
 # END tools ------------------------------------------------------------
-
-# def node_manager(state: AgentState) -> AgentState:
-#     '''
-#     This node is responsible for starting/ending the game and chatting with the user.
-#     '''
-#     if state["game_started"] is True:
-#         return "game_has_started" #bypass this node and go to the managerrouter
-    
-#     system_message_content = '''
-#     You are a friendly host of a Mystery Item Game. The goal of the game is for the user to guess the mystery item.
-#     Your job is determine if the user is trying to start the game, end the game, or just chat.
-#     If the user is trying to start the game, respond with "start_game" only and nothing else.
-#     If the user is trying to end the game, respond with "end_game" only and nothing else.
-#     If the user is just chatting, respond in concise and friendly matter, no more than 100 words.
-#     '''
-#     prompt = [SystemMessage(content=system_message_content)] + state["messages"]
-#     response = llm.invoke(prompt)
-        
-#     logger.info(f"--- node_manager ---")
-#     logger.info(f"state: {state}")
-#     return {"messages": [response]}
 
 def node_game_agent(state: AgentState) -> AgentState:
     '''
     This node is responsible for the game logic, it only calls tools.
     '''
     
-    system_message_content = '''
-    You are a Mystery Item Game tool agent. The goal of the game is for the user to guess the mystery item.
-    The user has a limited number of questions to ask you, and a limited number of attempts to guess the item.
-    You have the following tools to help you:
-    - `generate_mystery_item`: Call this to start the game and get a new item.
-    - `check_question`: Call this when the user asks a question about the mystery item.
-    - `check_guess`: Call this when the user tries to guess the item.
-    - `general_chat`: Call this for any conversational messages that are not part of the game.
-    Reminder: Use good judgement to determine if the user is asking a question or making a guess.
-    IMPORTANT: You must choose a tool to use, if you are not sure, default to `general_chat`.
-    '''
+    system_message_content = '''You are a Mystery Item Game agent. Your only job is to decide which tool to use based on the user's message. You must always choose one tool.
+- If the user wants to start a new game, use `generate_mystery_item`.
+- If the user wants to start over or stop playing while a game is in progress, use the `reset_game` tool.
+- If the user is trying to guess the item, or ask a question about it (e.g., "is it a car?" or "is it bigger than a house?"), use `check_guess`.
+- For all other conversational turns, use `general_chat`.'''
      
-    if state.get("mystery_item") is None:
-        system_message_content += "\nThere is no mystery item yet. Your job is to generate one now by calling the `generate_mystery_item` tool."
-    else:
-        system_message_content += f"\nThe mystery item has been set. Do not reveal the item: {state['mystery_item']}"
-        system_message_content += f"\nRemember after other tools are called, you must call the 'general_chat' tool to respond to the user."
+    if state.get("mystery_item"):
+        system_message_content += f"\nThe current mystery item is: {state['mystery_item']}. Do not reveal it."
      
     system_message = SystemMessage(content=system_message_content)
     prompt = [system_message] + state["messages"] 
     response = llm_w_tools.invoke(prompt)
     return {"messages": [response]}
 
-router_cnt = 0
-def router(state: AgentState) -> str:
-    global router_cnt
-    router_cnt += 1
-    logger.info(f"--- router cnt {router_cnt} ---")
-    if router_cnt > 5: 
-        logger.warning("Router limit reached, ending graph.")
-        return END
-    
-    last_message = state["messages"][-1]
-    if last_message.tool_calls:
-        logger.info(f"--- router, tool_calls = {last_message.tool_calls} ---")
-        if last_message.tool_calls[0]['name'] == 'general_chat':
-            return "chat_tool_node"
-        else:
-            return "game_tool_node"
-    else:
-        logger.info(f"!!!!!!! interrupt SHOULDN'T HAPPEN !!!!!!!")
-        return "__interrupt__"
-        
-
 graph = StateGraph(AgentState)
 graph.add_node("agent", node_game_agent)
-graph.add_node("game_tool_node", game_tool_node)
-graph.add_node("chat_tool_node", chat_tool_node)
+graph.add_node("tool_node", tool_node)
 
 graph.set_entry_point("agent")
-graph.add_conditional_edges(
-    "agent",
-    router,
-    {
-        "game_tool_node": "game_tool_node",
-        "chat_tool_node": "chat_tool_node",
-        "__interrupt__": END,
-    },
-)
-graph.add_edge("game_tool_node", "agent")
-graph.add_edge("chat_tool_node", END)
-
+graph.add_edge("agent", "tool_node")
+graph.add_edge("tool_node", END)
 
 app = graph.compile(checkpointer=memory)
 
@@ -210,6 +172,9 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     print(f"--- initial_state ---")
     print(initial_state)
 
+    # The graph will end with the tool_node, which is the last step.
+    # We can get the final state from the stream.
+    # The `stream` method returns an iterator of all states. We just want the final one.
     final_state = None
     for chunk in app.stream(initial_state, config=config):
         # chunk is a dictionary with the node name as key and the output as value
@@ -217,17 +182,18 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
         # logger.info(chunk)
         final_state = chunk
 
-    # The final state is the output of the last node that ran
-    # We are interested in the 'agent' node's output which is the full state
-    if final_state and "agent" in final_state:
-        logger.info(f"--- final_state ---")
-        logger.info(final_state)
-        return final_state["agent"]["messages"]
+    # The last chunk will be the output of the 'tool_node'
+    if final_state and "tool_node" in final_state:
+        # The tool node updates the state, including messages.
+        # We need to get the full state from the checkpointer to get the accumulated messages.
+        current_state = app.get_state(config)
+        logger.info(f"--- final_state (from tool_node) ---")
+        logger.info(current_state.values)
+        return current_state.values["messages"]
 
-    # If the graph ended without the agent running (e.g. interruption after tool),
-    # we need to fetch the current state from the checkpointer
+    # Fallback to get the current state if the last chunk wasn't the tool node
     current_state = app.get_state(config)
-    logger.info(f"--- current_state ---")
+    logger.info(f"--- current_state (fallback) ---")
     logger.info(current_state)
     return current_state.values["messages"]
 
