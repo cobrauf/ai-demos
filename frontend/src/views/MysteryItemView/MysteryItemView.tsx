@@ -8,7 +8,9 @@ import { Button } from "../../components/Button/Button";
 
 const WELCOME_MESSAGE: Message = {
   sender: "ai",
-  text: "Welcome to the Mystery Item Game!",
+  text: `Welcome detective! I'll pick a mystery thing, place, or person.
+
+Ask me questions to narrow it down until you can guess it. Let me know when you're ready to start!`,
 };
 
 interface Message {

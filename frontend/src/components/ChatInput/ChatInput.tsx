@@ -61,14 +61,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
         disabled={isLoading}
       />
       <div className={styles.buttonContainer}>
-        <Button
+        {/* <Button
           variant="iconCircle"
           onClick={onNewGame}
           disabled={isLoading}
           type="button"
         >
           <NewChatIcon />
-        </Button>
+        </Button> */}
         <Button variant="iconCircle" type="submit" disabled={isLoading}>
           <SendIcon />
         </Button>
