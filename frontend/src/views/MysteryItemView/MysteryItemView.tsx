@@ -100,7 +100,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
 
   return (
     <div className={styles.chatContainer}>
-      <TopBar title="Mystery Item Game" onMenuClick={onMenuClick} />
+      <TopBar title="The Guessing Game" onMenuClick={onMenuClick} />
       <main className={styles.messageArea} ref={messageAreaRef}>
         {conversation.map((msg, index) => (
           <ChatMessage

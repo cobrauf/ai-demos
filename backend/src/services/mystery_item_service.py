@@ -28,7 +28,7 @@ memory = MemorySaver()
 class AgentState(TypedDict):
     session_id: str
     game_started: bool = False
-    mystery_item: str | None = None
+    secret_answer: str | None = None
     guess_correct: str | None = None
     messages: Annotated[Sequence[BaseMessage], add_messages]
     
@@ -52,24 +52,25 @@ def general_chat(user_message: str, history: str) -> dict:
     
 @tool
 def generate_mystery_item() -> dict:
-    '''Use this tool to generate a mystery answer for a guess-the-thing game.'''
+    '''Use this tool to generate a secret answer for a guess-the-thing game.'''
     
     system_message = SystemMessage(content=generate_mystery_item_system_prompt)
     response = llm.invoke([system_message])
     logger.info(f"--- generate_mystery_item response.content ---")
     logger.info(response.content)
     return {
-        "mystery_item": response.content.strip(),
+        "secret_answer": response.content.strip(),
         "game_started": True,
-        "messages": [AIMessage(content="I've thought of a new mystery item! You can start asking questions or try to guess what it is.")]
+        "messages": [AIMessage(content="I've thought of a new secret answer! You can start asking questions or try to guess what it is.")]
     }
 
 @tool
-def check_guess(user_guess: str, mystery_item: str, history: str) -> dict:
+def check_guess(user_guess: str, secret_answer: str, history: str) -> dict:
     '''Use this tool to check if the user's guess is correct.'''
     
     system_message = SystemMessage(content=check_guess_system_prompt + f"""
     The user's guess is: {user_guess}.
+    The secret answer is: {secret_answer}.
     
     Conversation History:
     {history}
@@ -84,7 +85,7 @@ def check_guess(user_guess: str, mystery_item: str, history: str) -> dict:
     is_correct = "right" in response.content.lower()
     
     if is_correct:
-        message = AIMessage(content=f"You guessed it! The mystery item was '{mystery_item}'. Congratulations!")
+        message = AIMessage(content=f"You guessed it! The secret answer was '{secret_answer}'. Congratulations!")
     else:
         message = AIMessage(content="That's not it. Keep trying or ask another question!")
         
@@ -94,10 +95,11 @@ def check_guess(user_guess: str, mystery_item: str, history: str) -> dict:
     }
 
 @tool
-def answer_question(user_question: str, mystery_item: str, history: str) -> dict:
-    '''Use this tool to answer questions about the mystery item without revealing what it is.'''
+def answer_question(user_question: str, secret_answer: str, history: str) -> dict:
+    '''Use this tool to answer questions about the secret answer without revealing what it is.'''
     
     system_message = SystemMessage(content=answer_question_system_prompt + f"""
+    The secret answer is: {secret_answer}.
     The user's question is: {user_question}.
     
     Conversation History:
@@ -112,18 +114,18 @@ def answer_question(user_question: str, mystery_item: str, history: str) -> dict
     return {"messages": [response]}
 
 @tool
-def reset_game(mystery_item: str | None = None) -> dict:
+def reset_game(secret_answer: str | None = None) -> dict:
     """Call this tool when the user wants to play again or start a new game, but wants to continue the conversation."""
     
     logger.info(f"--- reset_game ---")
     
-    if mystery_item:
-        message = f"Okay, let's play again! The mystery item was '{mystery_item}'. I've cleared the board. Say 'start game' to get a new item."
+    if secret_answer:
+        message = f"Okay, let's play again! The secret answer was '{secret_answer}'. I've cleared the board. Say 'start game' to get a new answer."
     else:
-        message = "Okay, let's play again! I've cleared the board. Say 'start game' to get a new item."
+        message = "Okay, let's play again! I've cleared the board. Say 'start game' to get a new answer."
         
     return {
-        "mystery_item": None,
+        "secret_answer": None,
         "guess_correct": None,
         "game_started": False,
         "messages": [AIMessage(content=message)]
@@ -148,11 +150,11 @@ def node_game_agent(state: AgentState) -> AgentState:
     {history}
     """
 
-    if state.get("mystery_item"):
-        mystery_item = state.get('mystery_item')
+    if state.get("secret_answer"):
+        secret_answer = state.get('secret_answer')
         system_message_content += f"""
 
-        The current mystery item is: {mystery_item}. Use this when calling tools that require it.
+        The current secret answer is: {secret_answer}. Use this when calling tools that require it.
         """
     
     # print(f"system_message_content: {system_message_content}")
@@ -173,7 +175,7 @@ app = graph.compile(checkpointer=memory)
 
 def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) -> list[BaseMessage]:
     """
-    Invokes the mystery item graph.
+    Invokes the guessing game graph.
     Args:
         session_id: The session ID for the conversation.
         user_message: The user's message to inject into the graph.
