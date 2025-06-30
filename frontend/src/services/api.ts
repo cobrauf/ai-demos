@@ -38,3 +38,10 @@ export const invokeMysteryItemGraph = async (
   });
   return response.data;
 };
+
+export const resetMysteryItemSession = async (session_id: string) => {
+  const response = await api.post("/mystery-item/reset", {
+    session_id,
+  });
+  return response.data;
+};

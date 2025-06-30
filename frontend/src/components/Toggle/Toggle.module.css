@@ -13,9 +13,9 @@
 } */
 
 .toggle.active {
-  color: var(--accent-color);
+  color: var(--btn-secondary-toggle);
   font-weight: bold;
-  border-left: 3px solid var(--accent-color);
+  border-left: 3px solid var(--btn-secondary-toggle);
 }
 
 .link {

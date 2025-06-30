@@ -72,6 +72,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
         <Button variant="iconCircle" type="submit" disabled={isLoading}>
           <SendIcon />
         </Button>
+        <div className={styles.resetButtonContainer}>
+          <Button
+            variant="iconCircle"
+            onClick={onNewGame}
+            disabled={isLoading}
+            type="button"
+            className={styles.resetButton}
+          >
+            <NewChatIcon />
+          </Button>
+          <span className={styles.resetButtonLabel}>New</span>
+        </div>
       </div>
     </form>
   );
