@@ -18,7 +18,8 @@ from src.utils.mystery_item_prompts import (
     general_chat_system_prompt,
     check_guess_system_prompt,
     answer_question_system_prompt,
-    game_agent_system_prompt
+    game_agent_system_prompt,
+    give_hint_system_prompt
 )
 
 logger = logging.getLogger(__name__)
@@ -46,8 +47,8 @@ def general_chat(user_message: str, history: str) -> dict:
     logger.info(f"--- general_chat_tool ---")
     prompt = [system_message, HumanMessage(content=user_message)]
     response = llm.invoke(prompt)
-    logger.info(f"--- general_chat_tool response.content ---") 
-    logger.info(f"response.content: {response.content}")
+    # logger.info(f"--- general_chat_tool response.content ---") 
+    # logger.info(f"response.content: {response.content}")
     return {"messages": [response]}
     
 @tool
@@ -78,8 +79,8 @@ def check_guess(user_guess: str, secret_answer: str, history: str) -> dict:
     
     response = llm.invoke([system_message])
     logger.info(f"--- check_guess ---")
-    logger.info(f"response: {response}")
-    logger.info(f"--- check_guess response.content ---")    
+    # logger.info(f"response: {response}")
+    # logger.info(f"--- check_guess response.content ---")    
     logger.info(response.content)
     
     is_correct = "right" in response.content.lower()
@@ -108,7 +109,27 @@ def answer_question(user_question: str, secret_answer: str, history: str) -> dic
     
     response = llm.invoke([system_message])
     logger.info(f"--- answer_question ---")
-    logger.info(f"user_question: {user_question}")
+    # logger.info(f"user_question: {user_question}")
+    # logger.info(f"response.content: {response.content}")
+    return {"messages": [response]}
+
+@tool
+def give_hint(user_message: str, secret_answer: str, history: str) -> dict:
+    '''
+    Use this tool to give hints about the secret answer without revealing what it is.
+    Use it if the user is asking for a hint, or is frustrated, or has asked 4+ questions.
+    '''
+    
+    system_message = SystemMessage(content=give_hint_system_prompt + f"""
+    The secret answer is: {secret_answer}.
+    The user's message is: {user_message}.
+    
+    Conversation History:
+    {history}
+    """)
+    
+    response = llm.invoke([system_message])
+    logger.info(f"--- give_hint ---")
     logger.info(f"response.content: {response.content}")
     
     return {"messages": [response]}
@@ -131,7 +152,7 @@ def reset_game(secret_answer: str | None = None) -> dict:
         "messages": [AIMessage(content=message)]
     }
 
-tools = [generate_mystery_item, check_guess, answer_question, general_chat, reset_game]
+tools = [generate_mystery_item, check_guess, answer_question, general_chat, reset_game, give_hint]
 tool_node = ToolNode(tools)
 llm_w_tools = llm.bind_tools(tools, tool_choice="any") # force it to choose a tool
 # END tools ------------------------------------------------------------

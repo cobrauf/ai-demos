@@ -28,9 +28,9 @@ def format_history_for_prompt(messages: Sequence[BaseMessage]) -> str:
     Formats the conversation history for use in the agent's system prompt.
     It filters for human messages and parses AI responses from tool messages.
     """
-    logger.info(f"--- DEBUG: Total messages in state: {len(messages)} ---")
-    for i, msg in enumerate(messages):
-        logger.info(f"Message {i}: Type={type(msg).__name__}, Content={getattr(msg, 'content', 'NO_CONTENT')[:100]}...")
+    # logger.info(f"--- DEBUG: Total messages in state: {len(messages)} ---")
+    # for i, msg in enumerate(messages):
+    #     logger.info(f"Message {i}: Type={type(msg).__name__}, Content={getattr(msg, 'content', 'NO_CONTENT')[:100]}...")
 
     filtered_messages = []
     for msg in messages:
