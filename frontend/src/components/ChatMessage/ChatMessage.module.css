@@ -22,7 +22,8 @@
 }
 
 .ai .bubble {
-  background-color: var(--btn-secondary-bg);
+  background-color: var(--btn-secondary-bg-glass);
+  border: var(--btn-secondary-border);
   color: var(--btn-secondary-text);
   border-bottom-left-radius: 2px;
 }
@@ -33,7 +34,8 @@
 }
 
 .user .bubble {
-  background-color: var(--accent-color);
+  background-color: var(--accent-color-glass);
+  border: var(--accent-color-border);
   color: var(--btn-base-text);
   border-bottom-right-radius: 2px;
 }
@@ -44,7 +46,8 @@
 }
 
 .loading .bubble {
-  background-color: var(--btn-secondary-bg);
+  background-color: var(--btn-secondary-bg-glass);
+  border: var(--btn-secondary-border);
   color: var(--button-secondary-text, #aaa); /* Fallback color */
   font-style: italic;
   border-bottom-left-radius: 2px;
