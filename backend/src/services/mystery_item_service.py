@@ -225,6 +225,36 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     logger.info(current_state)
     return current_state.values["messages"]
 
+def reset_session_state(session_id: str) -> bool:
+    """
+    Resets the session state by clearing it from memory.
+    Args:
+        session_id: The session ID to reset.
+    Returns:
+        True if reset was successful, False otherwise.
+    """
+    try:
+        logger.info(f"--- reset_session_state for session: {session_id} ---")
+        config = {"configurable": {"thread_id": session_id}}
+        
+        # Clear the session state by putting an empty state
+        empty_state = {
+            "session_id": session_id,
+            "game_started": False,
+            "secret_answer": None,
+            "guess_correct": None,
+            "messages": []
+        }
+        
+        # Put the empty state to effectively reset the session
+        app.update_state(config, empty_state)
+        logger.info(f"Session {session_id} reset successfully")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to reset session {session_id}: {e}")
+        return False
+
 # output to a png ---------------------------------------------------
 # graph_png_bytes = app.get_graph().draw_mermaid_png()
 # output_filename = "./mystery_item_graph.png"

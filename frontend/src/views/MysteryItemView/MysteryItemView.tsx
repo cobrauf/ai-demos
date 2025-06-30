@@ -3,7 +3,10 @@ import styles from "./MysteryItemView.module.css";
 import ChatMessage from "../../components/ChatMessage/ChatMessage";
 import ChatInput from "../../components/ChatInput/ChatInput";
 import TopBar from "../../components/TopBar/TopBar";
-import { invokeMysteryItemGraph } from "../../services/api";
+import {
+  invokeMysteryItemGraph,
+  resetMysteryItemSession,
+} from "../../services/api";
 import { Button } from "../../components/Button/Button";
 
 const WELCOME_MESSAGE: Message = {
@@ -118,7 +121,15 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     }
   };
 
-  const handleNewGame = () => {
+  const handleNewGame = async () => {
+    // First reset the backend state for the current session
+    try {
+      await resetMysteryItemSession(sessionId);
+      console.log("Backend session reset successfully");
+    } catch (error) {
+      console.error("Failed to reset backend session:", error);
+    }
+
     // Generate a completely new session ID and update storage
     const newSessionId = `session_${Date.now()}_${Math.random()
       .toString(36)

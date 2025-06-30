@@ -52,7 +52,7 @@ html[data-theme="light"] {
   --background-hover: #f0f0f0;
   /* --chat-background: linear-gradient(135deg, #e1e9ff 0%, #fdd8ea 100%); */
   --chat-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --input-bg-color: #c5c5c5;
+  --input-bg-color: #9b9b9b;
 }
 
 a {

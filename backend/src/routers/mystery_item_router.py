@@ -17,6 +17,9 @@ router = APIRouter(
 class ChatRequest(BaseModel):
     session_id: str | None = None
     message: str
+
+class ResetRequest(BaseModel):
+    session_id: str
     
     
 # @router.post("/") # for general chat
@@ -36,4 +39,10 @@ def invoke_mystery_item(request: ChatRequest):
     
     ai_response = extract_last_ai_response(messages)
     return {"response": ai_response}
+
+@router.post("/reset")
+def reset_mystery_item_session(request: ResetRequest):
+    """Reset the mystery item game session, clearing all backend state."""
+    success = mystery_item_service.reset_session_state(request.session_id)
+    return {"success": success, "message": "Session reset successfully"}
 
