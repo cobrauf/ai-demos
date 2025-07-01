@@ -27,7 +27,7 @@ class AgentState(TypedDict):
     session_id: str
     game_started: bool = False
     secret_answer: str | None = None
-    guess_correct: str | None = None
+    guess_correct: bool | None = None
     messages: Annotated[Sequence[BaseMessage], add_messages]
     
 # tools ------------------------------------------------------------
@@ -80,21 +80,25 @@ def check_guess(user_guess: str, secret_answer: str, history: str) -> dict:
     
     response = llm.invoke([system_message])
     logger.info(f"--- check_guess ---")
-    # logger.info(f"response: {response}")
-    # logger.info(f"--- check_guess response.content ---")    
     logger.info(response.content)
     
-    is_correct = "right" in response.content.lower()
+    is_correct = response.content.upper().startswith("CORRECT:")
     
-    if is_correct:
-        message = AIMessage(content=f"You guessed it! The secret answer was '{secret_answer}'. Congratulations!")
-    else:
-        message = AIMessage(content="That's not it. Keep trying or ask another question!")
+    message_content = response.content.replace("CORRECT:", "").replace("INCORRECT:", "").strip()
+    message = AIMessage(content=message_content)
         
-    return {
-        "guess_correct": "correct" if is_correct else "incorrect",
-        "messages": [message]
-    }
+    if is_correct:
+        return {
+            "secret_answer": None,
+            "game_started": False,
+            "guess_correct": False,
+            "messages": [message]
+        }
+    else:
+        return {
+            "guess_correct": False,
+            "messages": [message]
+        }
 
 @tool
 def answer_question(user_question: str, secret_answer: str, history: str) -> dict:
