@@ -19,6 +19,25 @@ You can ask me questions to help you narrow down the secret answer. If you get s
 Let me know when you're ready to start!`,
 };
 
+const getToolDisplayName = (toolName: string): string => {
+  switch (toolName) {
+    case "general_chat":
+      return "general_chat";
+    case "answer_question":
+      return "answer_question";
+    case "check_guess":
+      return "check_guess";
+    case "give_hint":
+      return "give_hint";
+    case "generate_mystery_item":
+      return "generate_secret_answer";
+    case "reset_game":
+      return "reset_game";
+    default:
+      return `No tool call`;
+  }
+};
+
 interface Message {
   id?: string;
   sender: "ai" | "user" | "tool";
@@ -113,7 +132,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
           newConversation.push({
             id: `tool-${Date.now()}`,
             sender: "tool",
-            text: `Calling tool: ${toolName}`,
+            text: `Tool call: ${toolName}`,
           });
         }
 
