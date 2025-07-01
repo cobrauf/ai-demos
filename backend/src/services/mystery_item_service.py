@@ -11,6 +11,7 @@ from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, END
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode
+from langgraph.checkpoint.memory import MemorySaver
 from src.utils.mystery_item_helpers import format_history_for_prompt
 from src.utils.mystery_item_prompts import (
     generate_mystery_item_system_prompt,
@@ -23,11 +24,13 @@ from src.utils.mystery_item_prompts import (
 
 logger = logging.getLogger(__name__)
 
+memory = MemorySaver()
+
 class AgentState(TypedDict):
     session_id: str
     game_started: bool = False
     secret_answer: str | None = None
-    guess_correct: str | None = None
+    guess_correct: bool | None = None
     messages: Annotated[Sequence[BaseMessage], add_messages]
     
 # tools ------------------------------------------------------------
@@ -37,8 +40,11 @@ def general_chat(user_message: str, history: str) -> dict:
     
     system_message = SystemMessage(content=general_chat_system_prompt + f"""
     
-    Current Conversation History (for your information):
+    Here's the conversation history for your reference:
     {history}
+    
+    Here is the user's current message:
+    {user_message}
     """)
  
     logger.info(f"--- general_chat_tool ---")
@@ -67,41 +73,47 @@ def check_guess(user_guess: str, secret_answer: str, history: str) -> dict:
     '''Use this tool to check if the user's guess is correct.'''
     
     system_message = SystemMessage(content=check_guess_system_prompt + f"""
-    The user's guess is: {user_guess}.
-    The secret answer is: {secret_answer}.
-    
-    Conversation History:
+    Here's the conversation history for your reference:
     {history}
+    
+    Here are the secret answer and user's guess, respond accordingly:
+    The secret answer is: {secret_answer}.
+    The user's guess is: {user_guess}.
     """)
     
     response = llm.invoke([system_message])
     logger.info(f"--- check_guess ---")
-    # logger.info(f"response: {response}")
-    # logger.info(f"--- check_guess response.content ---")    
     logger.info(response.content)
     
-    is_correct = "right" in response.content.lower()
+    is_correct = response.content.upper().startswith("CORRECT:")
     
-    if is_correct:
-        message = AIMessage(content=f"You guessed it! The secret answer was '{secret_answer}'. Congratulations!")
-    else:
-        message = AIMessage(content="That's not it. Keep trying or ask another question!")
+    message_content = response.content.replace("CORRECT:", "").replace("INCORRECT:", "").strip()
+    message = AIMessage(content=message_content)
         
-    return {
-        "guess_correct": "correct" if is_correct else "incorrect",
-        "messages": [message]
-    }
+    if is_correct:
+        return {
+            "secret_answer": None,
+            "game_started": False,
+            "guess_correct": False,
+            "messages": [message]
+        }
+    else:
+        return {
+            "guess_correct": False,
+            "messages": [message]
+        }
 
 @tool
 def answer_question(user_question: str, secret_answer: str, history: str) -> dict:
     '''Use this tool to answer questions about the secret answer without revealing what it is.'''
     
     system_message = SystemMessage(content=answer_question_system_prompt + f"""
+    Here's the conversation history for your reference:
+    {history}
+    
+    Here are the secret answer and user's question, respond accordingly:
     The secret answer is: {secret_answer}.
     The user's question is: {user_question}.
-    
-    Conversation History:
-    {history}
     """)
     
     response = llm.invoke([system_message])
@@ -118,11 +130,12 @@ def give_hint(user_message: str, secret_answer: str, history: str) -> dict:
     '''
     
     system_message = SystemMessage(content=give_hint_system_prompt + f"""
+    Here's the conversation history for your reference:
+    {history}
+    
+    Here are the secret answer and user's message, respond accordingly:
     The secret answer is: {secret_answer}.
     The user's message is: {user_message}.
-    
-    Conversation History:
-    {history}
     """)
     
     response = llm.invoke([system_message])
@@ -138,9 +151,9 @@ def reset_game(secret_answer: str | None = None) -> dict:
     logger.info(f"--- reset_game ---")
     
     if secret_answer:
-        message = f"Okay, let's play again! The secret answer was '{secret_answer}'. I've cleared the board. Say 'start game' to get a new answer."
+        message = f"Sure, the secret answer was '{secret_answer}'. I've cleared the board. Let me know when you're ready to play again."
     else:
-        message = "Okay, let's play again! I've cleared the board. Say 'start game' to get a new answer."
+        message = "Sure, I've cleared the board. Let me know when you're ready to play again."
         
     return {
         "secret_answer": None,
@@ -189,7 +202,7 @@ graph.set_entry_point("agent")
 graph.add_edge("agent", "tool_node")
 graph.add_edge("tool_node", END)
 
-app = graph.compile()
+app = graph.compile(checkpointer=memory)
 
 def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) -> list[BaseMessage]:
     """
