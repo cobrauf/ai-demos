@@ -12,7 +12,7 @@ from langgraph.graph import StateGraph, END
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
-from src.utils.mystery_item_helpers import format_history_for_prompt
+from src.utils.mystery_item_helpers import format_history_for_prompt, extract_last_tool_call
 from src.utils.mystery_item_prompts import (
     generate_mystery_item_system_prompt,
     general_chat_system_prompt,
@@ -199,14 +199,14 @@ graph.add_edge("tool_node", END)
 
 app = graph.compile(checkpointer=memory)
 
-def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) -> list[BaseMessage]:
+def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) -> dict:
     """
     Invokes the guessing game graph.
     Args:
         session_id: The session ID for the conversation.
         user_message: The user's message to inject into the graph.
     Returns:
-        The updated list of messages from the graph state.
+        A dictionary containing the updated list of messages and the last tool call name.
     """
     logger.info(f"--- invoke_graph ---")
     config = {"configurable": {"thread_id": session_id}}
@@ -222,13 +222,17 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     # The last chunk will be the output of the 'tool_node'
     if final_state and "tool_node" in final_state:
         current_state = app.get_state(config)
-        return current_state.values["messages"]
+        messages = current_state.values["messages"]
+        tool_name = extract_last_tool_call(messages)
+        return {"messages": messages, "tool_name": tool_name}
 
     # Fallback to get the current state if the last chunk wasn't the tool node
     current_state = app.get_state(config)
     logger.info(f"--- current_state (fallback) ---")
     logger.info(current_state)
-    return current_state.values["messages"]
+    messages = current_state.values["messages"]
+    tool_name = extract_last_tool_call(messages)
+    return {"messages": messages, "tool_name": tool_name}
 
 def reset_session_state(session_id: str) -> bool:
     """

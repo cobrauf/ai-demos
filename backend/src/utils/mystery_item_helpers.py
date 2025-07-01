@@ -67,3 +67,14 @@ def extract_last_ai_response(messages: Sequence[BaseMessage]) -> str:
                 return msg.content.strip()
 
     return "Sorry, I couldn't generate a response."
+
+def extract_last_tool_call(messages: Sequence[BaseMessage]) -> str | None:
+    """
+    Finds the most recent AIMessage with tool_calls and returns the tool name.
+    """
+    for msg in reversed(messages):
+        if isinstance(msg, AIMessage) and getattr(msg, 'tool_calls', None):
+            # Assumes one tool call per message, return the first one found
+            if msg.tool_calls:
+                return msg.tool_calls[0]['name']
+    return None

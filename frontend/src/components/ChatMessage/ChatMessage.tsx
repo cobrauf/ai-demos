@@ -4,7 +4,7 @@ import styles from "./ChatMessage.module.css";
 import { useTheme } from "../../hooks/useTheme";
 
 interface ChatMessageProps {
-  sender: "ai" | "user" | "loading";
+  sender: "ai" | "user" | "tool";
   text: string;
 }
 
@@ -14,8 +14,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ sender, text }) => {
   return (
     <div
       className={clsx(styles.messageContainer, {
-        [styles.ai]: sender === "ai",
+        [styles.ai]: sender === "ai" && !isLoading,
         [styles.user]: sender === "user",
+        [styles.tool]: sender === "tool",
         [styles.loading]: isLoading,
       })}
     >

@@ -32,13 +32,16 @@ class ResetRequest(BaseModel):
 
 @router.post("/invoke")
 def invoke_mystery_item(request: ChatRequest):
-    messages = mystery_item_service.invoke_mystery_item_graph(
+    result = mystery_item_service.invoke_mystery_item_graph(
         session_id=request.session_id,
         user_message=request.message
     )
     
+    messages = result["messages"]
+    tool_name = result["tool_name"]
+    
     ai_response = extract_last_ai_response(messages)
-    return {"response": ai_response}
+    return {"response": ai_response, "tool_name": tool_name}
 
 @router.post("/reset")
 def reset_mystery_item_session(request: ResetRequest):

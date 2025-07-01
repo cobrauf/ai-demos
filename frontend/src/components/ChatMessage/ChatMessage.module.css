@@ -40,6 +40,21 @@
   border-bottom-right-radius: 2px;
 }
 
+/* Tool message styles (center-aligned) */
+.tool {
+  justify-content: center;
+}
+
+.tool .bubble {
+  background-color: rgb(204, 126, 23, 0.5);
+  border: var(--btn-secondary-border);
+  color: var(--text-color);
+  font-size: 1.2rem;
+  font-style: italic;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+}
+
 /* Loading indicator styles */
 .loading {
   justify-content: flex-start;
