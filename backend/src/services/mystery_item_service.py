@@ -37,8 +37,11 @@ def general_chat(user_message: str, history: str) -> dict:
     
     system_message = SystemMessage(content=general_chat_system_prompt + f"""
     
-    Current Conversation History (for your information):
+    Here's the conversation history for your reference:
     {history}
+    
+    Here is the user's current message:
+    {user_message}
     """)
  
     logger.info(f"--- general_chat_tool ---")
@@ -67,11 +70,12 @@ def check_guess(user_guess: str, secret_answer: str, history: str) -> dict:
     '''Use this tool to check if the user's guess is correct.'''
     
     system_message = SystemMessage(content=check_guess_system_prompt + f"""
-    The user's guess is: {user_guess}.
-    The secret answer is: {secret_answer}.
-    
-    Conversation History:
+    Here's the conversation history for your reference:
     {history}
+    
+    Here are the secret answer and user's guess, respond accordingly:
+    The secret answer is: {secret_answer}.
+    The user's guess is: {user_guess}.
     """)
     
     response = llm.invoke([system_message])
@@ -97,11 +101,12 @@ def answer_question(user_question: str, secret_answer: str, history: str) -> dic
     '''Use this tool to answer questions about the secret answer without revealing what it is.'''
     
     system_message = SystemMessage(content=answer_question_system_prompt + f"""
+    Here's the conversation history for your reference:
+    {history}
+    
+    Here are the secret answer and user's question, respond accordingly:
     The secret answer is: {secret_answer}.
     The user's question is: {user_question}.
-    
-    Conversation History:
-    {history}
     """)
     
     response = llm.invoke([system_message])
@@ -118,11 +123,12 @@ def give_hint(user_message: str, secret_answer: str, history: str) -> dict:
     '''
     
     system_message = SystemMessage(content=give_hint_system_prompt + f"""
+    Here's the conversation history for your reference:
+    {history}
+    
+    Here are the secret answer and user's message, respond accordingly:
     The secret answer is: {secret_answer}.
     The user's message is: {user_message}.
-    
-    Conversation History:
-    {history}
     """)
     
     response = llm.invoke([system_message])
@@ -138,9 +144,9 @@ def reset_game(secret_answer: str | None = None) -> dict:
     logger.info(f"--- reset_game ---")
     
     if secret_answer:
-        message = f"Okay, let's play again! The secret answer was '{secret_answer}'. I've cleared the board. Say 'start game' to get a new answer."
+        message = f"Sure, the secret answer was '{secret_answer}'. I've cleared the board. Let me know when you're ready to play again."
     else:
-        message = "Okay, let's play again! I've cleared the board. Say 'start game' to get a new answer."
+        message = "Sure, I've cleared the board. Let me know when you're ready to play again."
         
     return {
         "secret_answer": None,
