@@ -20,8 +20,7 @@
   --btn-base-bg-hover: #747cff;
 
   --btn-secondary-bg: #7728b3;
-  --btn-secondary-toggle: #6802dc;
-  /* --btn-secondary-bg-glass: rgba(119, 40, 179, 0.3); */
+  --btn-secondary-toggle: #00ddff;
   --btn-secondary-bg-glass: rgba(255, 255, 255, 0.1);
   --btn-secondary-border: 1px solid rgba(255, 255, 255, 0.2);
   --btn-secondary-text: #ffffff;
@@ -41,7 +40,7 @@ html[data-theme="dark"] {
   --text-color: rgba(255, 255, 255, 0.87);
   --text-color-secondary: #aaaaaa;
   --background-hover: #3a3a3a;
-  --chat-background: linear-gradient(135deg, #5e5e5e 0%, #464646 100%);
+  --chat-background: linear-gradient(135deg, #4d4c4c 0%, #2d2d2d 100%);
   --input-bg-color: #2c2c2c;
 }
 
@@ -51,8 +50,8 @@ html[data-theme="light"] {
   --text-color-secondary: #555555;
   --background-hover: #f0f0f0;
   /* --chat-background: linear-gradient(135deg, #e1e9ff 0%, #fdd8ea 100%); */
-  --chat-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --input-bg-color: #9b9b9b;
+  --chat-background: linear-gradient(135deg, #435bc7 0%, #764ba2 100%);
+  --input-bg-color: #757474;
 }
 
 a {

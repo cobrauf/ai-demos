@@ -87,12 +87,12 @@ const SideMenu: React.FC<SideMenuProps> = ({
         {themesOpen && (
           <div className={styles.dropdownContent}>
             <Toggle
-              label="Light"
+              label="Lighter"
               active={theme === "light"}
               onClick={() => setTheme("light")}
             />
             <Toggle
-              label="Dark"
+              label="Darker"
               active={theme === "dark"}
               onClick={() => setTheme("dark")}
             />
