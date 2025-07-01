@@ -11,6 +11,9 @@ pip-wheel-metadata/
 pip-selfcheck.json
 .eggs/
 
+# LangGraph
+backend/.langgraph_api/
+
 # Node
 /frontend/node_modules/
 /frontend/dist/

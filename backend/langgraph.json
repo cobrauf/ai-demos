@@ -1,0 +1,7 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "mystery_game": "./src/services/mystery_item_service.py:app"
+  },
+  "env": ".env"
+}
