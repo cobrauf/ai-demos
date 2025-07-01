@@ -27,10 +27,8 @@ logger = logging.getLogger(__name__)
 memory = MemorySaver()
 
 class AgentState(TypedDict):
-    session_id: str
     game_started: bool = False
     secret_answer: str | None = None
-    guess_correct: bool | None = None
     messages: Annotated[Sequence[BaseMessage], add_messages]
     
 # tools ------------------------------------------------------------
@@ -87,19 +85,17 @@ def check_guess(user_guess: str, secret_answer: str, history: str) -> dict:
     
     is_correct = response.content.upper().startswith("CORRECT:")
     
-    message_content = response.content.replace("CORRECT:", "").replace("INCORRECT:", "").strip()
+    message_content = response.content.replace("INCORRECT:", "").replace("CORRECT:", "").strip()
     message = AIMessage(content=message_content)
         
     if is_correct:
         return {
             "secret_answer": None,
             "game_started": False,
-            "guess_correct": False,
             "messages": [message]
         }
     else:
         return {
-            "guess_correct": False,
             "messages": [message]
         }
 
@@ -157,7 +153,6 @@ def reset_game(secret_answer: str | None = None) -> dict:
         
     return {
         "secret_answer": None,
-        "guess_correct": None,
         "game_started": False,
         "messages": [AIMessage(content=message)]
     }
@@ -249,10 +244,8 @@ def reset_session_state(session_id: str) -> bool:
         
         # Clear the session state by putting an empty state
         empty_state = {
-            "session_id": session_id,
             "game_started": False,
             "secret_answer": None,
-            "guess_correct": None,
             "messages": []
         }
         
