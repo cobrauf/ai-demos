@@ -11,6 +11,7 @@ from langgraph.graph.message import add_messages
 from langgraph.graph import StateGraph, END
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode
+from langgraph.checkpoint.memory import MemorySaver
 from src.utils.mystery_item_helpers import format_history_for_prompt
 from src.utils.mystery_item_prompts import (
     generate_mystery_item_system_prompt,
@@ -22,6 +23,8 @@ from src.utils.mystery_item_prompts import (
 )
 
 logger = logging.getLogger(__name__)
+
+memory = MemorySaver()
 
 class AgentState(TypedDict):
     session_id: str
@@ -199,7 +202,7 @@ graph.set_entry_point("agent")
 graph.add_edge("agent", "tool_node")
 graph.add_edge("tool_node", END)
 
-app = graph.compile()
+app = graph.compile(checkpointer=memory)
 
 def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) -> list[BaseMessage]:
     """
