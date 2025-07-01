@@ -10,6 +10,7 @@ import {
 import { Button } from "../../components/Button/Button";
 
 const WELCOME_MESSAGE: Message = {
+  id: "welcome",
   sender: "ai",
   text: `Welcome to The Guessing Game! I'll pick a mystery thing, place, or person as the secret answer.
 
@@ -20,7 +21,7 @@ Let me know when you're ready to start!`,
 
 interface Message {
   id?: string;
-  sender: "ai" | "user";
+  sender: "ai" | "user" | "tool";
   text: string;
   type?: "human" | "ai" | "tool";
   content?: string;
@@ -83,7 +84,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     setIsLoading(true);
 
     const aiLoadingMessage: Message = {
-      id: `ai-${Date.now()}`,
+      id: "loading",
       sender: "ai",
       text: "...",
     };
@@ -95,27 +96,44 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         text
       );
 
-      // Backend now returns a simple {response: "..."} format
       const aiMessageText =
         response.response ||
         "Sorry, I didn't get a valid response. Please try again.";
+      const toolName = response.tool_name;
 
       console.log("AI response:", aiMessageText);
+      console.log("Tool name:", toolName);
 
-      setConversation((prev) =>
-        prev.map((msg) =>
-          msg.id === aiLoadingMessage.id
-            ? { ...msg, text: aiMessageText, id: `ai-${Date.now()}-response` }
-            : msg
-        )
-      );
+      setConversation((prev) => {
+        const newConversation = prev.filter(
+          (msg) => msg.id !== aiLoadingMessage.id
+        );
+
+        if (toolName) {
+          newConversation.push({
+            id: `tool-${Date.now()}`,
+            sender: "tool",
+            text: `Calling tool: ${toolName}`,
+          });
+        }
+
+        newConversation.push({
+          id: `ai-${Date.now()}-response`,
+          sender: "ai",
+          text: aiMessageText,
+        });
+
+        return newConversation;
+      });
     } catch (error) {
       console.error("Failed to get AI response: ", error);
       const errorMessage =
         "I'm having trouble connecting to the game server right now. Please try again in a moment.";
       setConversation((prev) =>
         prev.map((msg) =>
-          msg.id === aiLoadingMessage.id ? { ...msg, text: errorMessage } : msg
+          msg.id === aiLoadingMessage.id
+            ? { ...msg, text: errorMessage, id: `ai-${Date.now()}-error` }
+            : msg
         )
       );
     } finally {
