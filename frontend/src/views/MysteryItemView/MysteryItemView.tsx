@@ -11,9 +11,11 @@ import { Button } from "../../components/Button/Button";
 
 const WELCOME_MESSAGE: Message = {
   sender: "ai",
-  text: `Welcome detective! I'll pick a mystery thing, place, or person.
+  text: `Welcome to The Guessing Game! I'll pick a mystery thing, place, or person as the secret answer.
 
-Ask me questions to narrow it down until you can guess it. Let me know when you're ready to start!`,
+You can ask me questions to help you narrow down the secret answer. If you get stuck, you can ask for a hint.
+
+Let me know when you're ready to start!`,
 };
 
 interface Message {
