@@ -90,61 +90,112 @@ Tool Parameter Requirements:
 - `give_hint`: requires `user_message`, `secret_answer`, and `history`
 """
 
-generate_mystery_item_system_prompt = """
+# Generate Mystery Item ------------------------
+import random
+
+TOPICS = [
+    "Household Items",
+    "Animals",
+    "Fruits and Vegetables",
+    "Musical Instruments",
+    "Sports",
+    "Clothing",
+    "Precious Gems",
+    "Celestial Bodies (Planets, Stars)",
+    "Professions/Occupations",
+    "Types of Transportation",
+    "Weather",
+    "Body Parts",
+    "Types of Trees/Flowers",
+    "Board Games",
+    "Types of Dances",
+    "Forms of Art",
+    "Academic Subjects",
+    "Music",
+    "Video Games",
+    "TV Shows and Movies",
+    "Landmarks",
+    "Famous cities",
+    "Natural Wonders",
+    "Oceans/Seas",
+    "Capital Cities",
+    "Fictional Places",
+    "Countries",
+    "US States",
+    "Historical Figures",
+    "Fictional Characters (Movies/TV)",
+    "Superheroes",
+    "Inventors",
+    "Artists (Painters, Sculptors)",
+    "Musicians/Composers"
+]
+
+LETTERS = [
+    "T", "A", "O", "S", "I", "C", "P", "E", "F", "D",
+    "W", "H", "M", "R", "Y", "N", "G", "B", "V", "L"
+]
+
+def generate_mystery_item_system_prompt() -> str:
+    """Generate the system prompt with a randomly selected topic and starting letter."""
+    topic = random.choice(TOPICS)
+    letter = random.choice(LETTERS)
+    
+    return f"""
 You are a Guessing Game agent. The user plays by asking questions and making guesses to a secret answer that's either a thing, place, or person.
-Your only job is to generate a secret "answer" for a guess-the-thing game. 
-To ensure variety and reduce repeats, first choose a topic from the list below. 
-Then, pick a RANDOM thing from that chosen topic to be the answer. Avoid repeating the same topic or answer often.
+Your only job is to generate a secret "answer" for a guess-the-thing game.
 
-Here's the breakdown of your topics into "Things," "Places," and "People":
-
-**Things:**
-* Household Appliances
-* Wild Animals
-* Fruits and Vegetables
-* Musical Instruments
-* Sports Equipment
-* Kitchen appliances
-* Types of Clothing
-* Precious Gems
-* Celestial Bodies (Planets, Stars)
-* Professions/Occupations
-* Inventions
-* Types of Transportation
-* Weather Phenomena
-* Body Parts
-* Types of Trees/Flowers
-* Board Games
-* Card Games
-* Types of Dances
-* Sports
-* Forms of Art (e.g., Sculpture, Painting)
-* Academic Subjects
-* Music
-* Video Games
-
-**Places:**
-* Landmarks
-* Famous cities
-* Natural Wonders
-* Famous Rivers/
-* Deserts
-* Oceans/Seas
-* Capital Cities
-* Fictional Places
-* Countries
-* US States
-
-**People:**
-* Historical Figures
-* Fictional Characters (Movies/TV)
-* Superheroes
-* Inventors
-* Artists (Painters, Sculptors)
-* Musicians/Composers
-* Philosophers
+Your task:
+- Pick a RANDOM thing from this topic: {topic}
+- The answer MUST start with this letter: {letter}
+- If no good options exist for that letter in that topic, you can start with a different letter.
 
 Your response will only include the secret answer and should be a single word or short phrase of no more than 50 characters.
 Choose an answer that a 10 year old would know.
 """
+
+# **Things:**
+# * Household Appliances
+# * Wild Animals
+# * Fruits and Vegetables
+# * Musical Instruments
+# * Sports Equipment
+# * Kitchen appliances
+# * Types of Clothing
+# * Precious Gems
+# * Celestial Bodies (Planets, Stars)
+# * Professions/Occupations
+# * Inventions
+# * Types of Transportation
+# * Weather Phenomena
+# * Body Parts
+# * Types of Trees/Flowers
+# * Board Games
+# * Card Games
+# * Types of Dances
+# * Sports
+# * Forms of Art (e.g., Sculpture, Painting)
+# * Academic Subjects
+# * Music
+# * Video Games
+
+# **Places:**
+# * Landmarks
+# * Famous cities
+# * Natural Wonders
+# * Famous Rivers/
+# * Deserts
+# * Oceans/Seas
+# * Capital Cities
+# * Fictional Places
+# * Countries
+# * US States
+
+# **People:**
+# * Historical Figures
+# * Fictional Characters (Movies/TV)
+# * Superheroes
+# * Inventors
+# * Artists (Painters, Sculptors)
+# * Musicians/Composers
+# * Philosophers
 

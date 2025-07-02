@@ -57,7 +57,10 @@ def general_chat(user_message: str, history: str) -> dict:
 def generate_mystery_item() -> dict:
     '''Use this tool to generate a secret answer for a guess-the-thing game.'''
     
-    system_message = SystemMessage(content=generate_mystery_item_system_prompt)
+    # Generate system prompt with random topic and letter to force variety
+    generated_mystery_prompt = generate_mystery_item_system_prompt()
+    system_message = SystemMessage(content=generated_mystery_prompt)
+    
     response = llm.invoke([system_message])
     logger.info(f"--- generate_mystery_item response.content ---")
     logger.info(response.content)
