@@ -3,6 +3,7 @@ import styles from "./MysteryItemView.module.css";
 import ChatMessage from "../../components/ChatMessage/ChatMessage";
 import ChatInput from "../../components/ChatInput/ChatInput";
 import TopBar from "../../components/TopBar/TopBar";
+import NewChatIcon from "../../components/ChatInput/NewChatIcon";
 import {
   invokeMysteryItemGraph,
   resetMysteryItemSession,
@@ -199,12 +200,19 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         {/* <Button variant="icon">icon</Button> */}
         {/* <Button variant="iconCircle">iconCircle</Button> */}
       </main>
+      <div className={styles.newGameButtonContainer}>
+        <Button
+          variant="iconCircle"
+          onClick={handleNewGame}
+          disabled={isLoading}
+          type="button"
+          className={styles.newGameButton}
+        >
+          <NewChatIcon />
+        </Button>
+      </div>
       <footer className={styles.inputArea}>
-        <ChatInput
-          onSendMessage={handleSendMessage}
-          onNewGame={handleNewGame}
-          isLoading={isLoading}
-        />
+        <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
       </footer>
     </div>
   );

@@ -22,8 +22,17 @@
   flex-shrink: 0;
 }
 
-.newGameButton {
+.newGameButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 1rem;
   margin-bottom: 0.5rem;
+  background-color: var(--chat-background, #f9f9f9);
+}
+
+.newGameButton {
+  transform: scale(0.7);
+  transform-origin: center;
 }
 
 /* Simple message styling for now */
