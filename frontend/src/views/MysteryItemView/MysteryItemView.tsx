@@ -150,7 +150,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     } catch (error) {
       console.error("Failed to get AI response: ", error);
       const errorMessage =
-        "I'm having trouble connecting to the game server right now. Please try again in a moment.";
+        "I'm having trouble connecting to the server right now. Please try again in a moment.";
       setConversation((prev) =>
         prev.map((msg) =>
           msg.id === aiLoadingMessage.id
