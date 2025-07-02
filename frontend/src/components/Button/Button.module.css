@@ -16,6 +16,12 @@
   transform: scale(0.97);
 }
 
+.button:disabled {
+  background-color: var(--btn-disabled-bg);
+  color: var(--btn-disabled-text);
+  cursor: not-allowed;
+}
+
 .button:focus {
   outline: none;
 }
@@ -39,12 +45,6 @@
 .cancel {
   background-color: var(--btn-cancel-bg);
   color: var(--btn-cancel-text);
-}
-
-.disabled {
-  background-color: var(--btn-disabled-bg);
-  color: var(--btn-disabled-text);
-  cursor: not-allowed;
 }
 
 .icon {

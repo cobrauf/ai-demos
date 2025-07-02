@@ -13,12 +13,25 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isMobile, setIsMobile] = useState(false);
   const prevIsLoading = useRef<boolean>(isLoading);
+  const [dots, setDots] = useState("");
 
   useEffect(() => {
     const userAgent =
       typeof window.navigator === "undefined" ? "" : navigator.userAgent;
     setIsMobile(/Mobi|Android/i.test(userAgent));
   }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      setInputValue("");
+      const interval = setInterval(() => {
+        setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
+      }, 300);
+      return () => clearInterval(interval);
+    } else {
+      setDots("");
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     if (prevIsLoading.current && !isLoading && !isMobile) {
@@ -72,7 +85,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
         ref={textareaRef}
         rows={1}
         className={styles.textInput}
-        placeholder=""
+        placeholder={isLoading ? `Waiting for response${dots}` : ""}
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
