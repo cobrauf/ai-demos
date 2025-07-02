@@ -7,6 +7,7 @@
   height: 100%;
   /* border-radius: 5px; */
   background: var(--chat-background, #f9f9f9);
+  position: relative; /* Allow absolute positioning of modal within this container */
 }
 
 .messageArea {

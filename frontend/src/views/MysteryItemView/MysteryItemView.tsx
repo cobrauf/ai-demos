@@ -238,7 +238,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         onClose={handleModalClose}
         onConfirm={handleModalConfirm}
         message="Start new chat? This will also reset your game."
-        confirmButtonText="Start New Chat"
+        confirmButtonText="Confirm"
         cancelButtonText="Cancel"
       />
     </div>
