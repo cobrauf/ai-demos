@@ -40,6 +40,7 @@ def general_chat(user_message: str, history: str) -> dict:
     
     Here's the conversation history for your reference:
     {history}
+    **End of conversation history**
     
     Here is the user's current message:
     {user_message}
@@ -73,6 +74,7 @@ def check_guess(user_guess: str, secret_answer: str, history: str) -> dict:
     system_message = SystemMessage(content=check_guess_system_prompt + f"""
     Here's the conversation history for your reference:
     {history}
+    **End of conversation history**
     
     Here are the secret answer and user's guess, respond accordingly:
     The secret answer is: {secret_answer}.
@@ -106,6 +108,7 @@ def answer_question(user_question: str, secret_answer: str, history: str) -> dic
     system_message = SystemMessage(content=answer_question_system_prompt + f"""
     Here's the conversation history for your reference:
     {history}
+    **End of conversation history**
     
     Here are the secret answer and user's question, respond accordingly:
     The secret answer is: {secret_answer}.
@@ -128,6 +131,7 @@ def give_hint(user_message: str, secret_answer: str, history: str) -> dict:
     system_message = SystemMessage(content=give_hint_system_prompt + f"""
     Here's the conversation history for your reference:
     {history}
+    **End of conversation history**
     
     Here are the secret answer and user's message, respond accordingly:
     The secret answer is: {secret_answer}.
@@ -172,8 +176,9 @@ def node_game_agent(state: AgentState) -> AgentState:
     
     system_message_content += f"""
 
-    Here is the conversation history:
+    Here is the conversation history for your reference:
     {history}
+    **End of conversation history**
     """
 
     if state.get("secret_answer"):
