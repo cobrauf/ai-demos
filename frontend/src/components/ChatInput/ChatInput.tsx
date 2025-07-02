@@ -1,30 +1,37 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./ChatInput.module.css";
 import SendIcon from "./SendIcon";
-import NewChatIcon from "./NewChatIcon";
 import { Button } from "../Button/Button";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
-  onNewGame: () => void;
   isLoading: boolean;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({
-  onSendMessage,
-  onNewGame,
-  isLoading,
-}) => {
+const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   const [inputValue, setInputValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isMobile, setIsMobile] = useState(false);
   const prevIsLoading = useRef<boolean>(isLoading);
+  const [dots, setDots] = useState("");
 
   useEffect(() => {
     const userAgent =
       typeof window.navigator === "undefined" ? "" : navigator.userAgent;
     setIsMobile(/Mobi|Android/i.test(userAgent));
   }, []);
+
+  useEffect(() => {
+    if (isLoading) {
+      setInputValue("");
+      const interval = setInterval(() => {
+        setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
+      }, 300);
+      return () => clearInterval(interval);
+    } else {
+      setDots("");
+    }
+  }, [isLoading]);
 
   useEffect(() => {
     if (prevIsLoading.current && !isLoading && !isMobile) {
@@ -78,36 +85,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
         ref={textareaRef}
         rows={1}
         className={styles.textInput}
-        placeholder=""
+        placeholder={isLoading ? `Waiting for response${dots}` : ""}
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        disabled={isLoading}
+        // disabled={isLoading}
       />
       <div className={styles.buttonContainer}>
-        {/* <Button
-          variant="iconCircle"
-          onClick={onNewGame}
-          disabled={isLoading}
-          type="button"
-        >
-          <NewChatIcon />
-        </Button> */}
         <Button variant="iconCircle" type="submit" disabled={isLoading}>
           <SendIcon />
         </Button>
-        <div className={styles.resetButtonContainer}>
-          <Button
-            variant="iconCircle"
-            onClick={onNewGame}
-            disabled={isLoading}
-            type="button"
-            className={styles.resetButton}
-          >
-            <NewChatIcon />
-          </Button>
-          {/* <span className={styles.resetButtonLabel}>New</span> */}
-        </div>
       </div>
     </form>
   );

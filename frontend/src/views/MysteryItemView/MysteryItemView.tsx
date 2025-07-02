@@ -3,6 +3,8 @@ import styles from "./MysteryItemView.module.css";
 import ChatMessage from "../../components/ChatMessage/ChatMessage";
 import ChatInput from "../../components/ChatInput/ChatInput";
 import TopBar from "../../components/TopBar/TopBar";
+import NewChatIcon from "../../components/ChatInput/NewChatIcon";
+import SharedModal from "../../components/SharedModal/SharedModal";
 import {
   invokeMysteryItemGraph,
   resetMysteryItemSession,
@@ -17,6 +19,12 @@ const WELCOME_MESSAGE: Message = {
 You can ask me questions to help you narrow down the secret answer. If you get stuck, you can ask for a hint.
 
 Let me know when you're ready to start!`,
+};
+
+const LOADING_MESSAGE: Message = {
+  id: "initial-loading",
+  sender: "ai",
+  text: "...",
 };
 
 const getToolDisplayName = (toolName: string): string => {
@@ -52,9 +60,10 @@ interface MysteryItemViewProps {
 
 const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
   const [conversation, setConversation] = useState<Message[]>([
-    WELCOME_MESSAGE,
+    LOADING_MESSAGE,
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [sessionId, setSessionId] = useState<string>(() => {
     // Get or create a persistent session ID for today
     const today = new Date().toDateString();
@@ -82,6 +91,16 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     return newSessionId;
   });
   const messageAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Show loading dots for 2 seconds, then show welcome message
+    if (conversation.length === 1 && conversation[0].id === "initial-loading") {
+      const timer = setTimeout(() => {
+        setConversation([WELCOME_MESSAGE]);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   useEffect(() => {
     // Scroll to the bottom of the message area
@@ -147,7 +166,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     } catch (error) {
       console.error("Failed to get AI response: ", error);
       const errorMessage =
-        "I'm having trouble connecting to the game server right now. Please try again in a moment.";
+        "I'm having trouble connecting to the server right now. Please try again in a moment.";
       setConversation((prev) =>
         prev.map((msg) =>
           msg.id === aiLoadingMessage.id
@@ -183,6 +202,19 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     console.log("New game started with fresh session ID:", newSessionId);
   };
 
+  const handleNewChatClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleModalConfirm = () => {
+    setIsModalOpen(false);
+    handleNewGame();
+  };
+
   return (
     <div className={styles.chatContainer}>
       <TopBar title="The Guessing Game" onMenuClick={onMenuClick} />
@@ -199,13 +231,32 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         {/* <Button variant="icon">icon</Button> */}
         {/* <Button variant="iconCircle">iconCircle</Button> */}
       </main>
+      <div className={styles.newGameButtonContainer}>
+        <div className={styles.buttonAndLabel}>
+          <Button
+            variant="iconCircle"
+            onClick={handleNewChatClick}
+            disabled={isLoading}
+            type="button"
+            className={styles.newGameButton}
+          >
+            <NewChatIcon />
+          </Button>
+          <span className={styles.newGameButtonLabel}>New Chat</span>
+        </div>
+      </div>
       <footer className={styles.inputArea}>
-        <ChatInput
-          onSendMessage={handleSendMessage}
-          onNewGame={handleNewGame}
-          isLoading={isLoading}
-        />
+        <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
       </footer>
+
+      <SharedModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onConfirm={handleModalConfirm}
+        message="Start new chat? This will also reset your game."
+        confirmButtonText="Confirm"
+        cancelButtonText="Cancel"
+      />
     </div>
   );
 };

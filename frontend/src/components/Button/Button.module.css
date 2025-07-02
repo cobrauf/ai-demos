@@ -16,6 +16,12 @@
   transform: scale(0.97);
 }
 
+.button:disabled {
+  background-color: var(--btn-disabled-bg);
+  color: var(--btn-disabled-text);
+  cursor: not-allowed;
+}
+
 .button:focus {
   outline: none;
 }
@@ -41,12 +47,6 @@
   color: var(--btn-cancel-text);
 }
 
-.disabled {
-  background-color: var(--btn-disabled-bg);
-  color: var(--btn-disabled-text);
-  cursor: not-allowed;
-}
-
 .icon {
   background: none;
   /* border: none; */
@@ -55,8 +55,8 @@
 
 .iconCircle {
   padding: 0.75rem;
-  width: 55px;
-  height: 55px;
+  width: 65px;
+  height: 65px;
   border: none;
   border-radius: 50%;
   background-color: var(--btn-base-bg);

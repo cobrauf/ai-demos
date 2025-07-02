@@ -8,12 +8,15 @@
   padding: 0.75rem 1rem;
   border-radius: 1.5rem;
   max-width: 80%;
+  min-height: 50px;
   word-wrap: break-word;
   position: relative;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   font-size: 1.7rem;
   white-space: pre-wrap;
   word-break: break-word;
+  display: flex;
+  align-items: center;
 }
 
 /* AI message styles (left-aligned) */
@@ -53,6 +56,8 @@
   font-style: italic;
   padding: 0.25rem 0.75rem;
   border-radius: 0.5rem;
+  max-height: 25px;
+  min-height: 25px;
 }
 
 /* Loading indicator styles */
