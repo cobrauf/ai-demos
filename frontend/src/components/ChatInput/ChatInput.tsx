@@ -89,7 +89,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        disabled={isLoading}
+        // disabled={isLoading}
       />
       <div className={styles.buttonContainer}>
         <Button variant="iconCircle" type="submit" disabled={isLoading}>

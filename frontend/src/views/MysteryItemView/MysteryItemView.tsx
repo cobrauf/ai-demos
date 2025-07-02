@@ -21,6 +21,12 @@ You can ask me questions to help you narrow down the secret answer. If you get s
 Let me know when you're ready to start!`,
 };
 
+const LOADING_MESSAGE: Message = {
+  id: "initial-loading",
+  sender: "ai",
+  text: "...",
+};
+
 const getToolDisplayName = (toolName: string): string => {
   switch (toolName) {
     case "general_chat":
@@ -54,7 +60,7 @@ interface MysteryItemViewProps {
 
 const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
   const [conversation, setConversation] = useState<Message[]>([
-    WELCOME_MESSAGE,
+    LOADING_MESSAGE,
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -85,6 +91,16 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     return newSessionId;
   });
   const messageAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Show loading dots for 2 seconds, then show welcome message
+    if (conversation.length === 1 && conversation[0].id === "initial-loading") {
+      const timer = setTimeout(() => {
+        setConversation([WELCOME_MESSAGE]);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   useEffect(() => {
     // Scroll to the bottom of the message area
