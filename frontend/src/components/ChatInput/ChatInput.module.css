@@ -18,9 +18,10 @@
   white-space: pre-wrap;
   word-wrap: break-word;
   resize: none;
-  overflow: hidden;
+  overflow-y: auto;
   font-size: 1.7rem;
   min-height: 10rem;
+  max-height: 12rem;
 }
 
 .textInput::placeholder {
