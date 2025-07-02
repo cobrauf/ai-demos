@@ -201,15 +201,18 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         {/* <Button variant="iconCircle">iconCircle</Button> */}
       </main>
       <div className={styles.newGameButtonContainer}>
-        <Button
-          variant="iconCircle"
-          onClick={handleNewGame}
-          disabled={isLoading}
-          type="button"
-          className={styles.newGameButton}
-        >
-          <NewChatIcon />
-        </Button>
+        <div className={styles.buttonAndLabel}>
+          <Button
+            variant="iconCircle"
+            onClick={handleNewGame}
+            disabled={isLoading}
+            type="button"
+            className={styles.newGameButton}
+          >
+            <NewChatIcon />
+          </Button>
+          <span className={styles.newGameButtonLabel}>New Chat</span>
+        </div>
       </div>
       <footer className={styles.inputArea}>
         <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />

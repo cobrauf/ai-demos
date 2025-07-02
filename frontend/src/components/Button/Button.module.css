@@ -55,8 +55,8 @@
 
 .iconCircle {
   padding: 0.75rem;
-  width: 55px;
-  height: 55px;
+  width: 65px;
+  height: 65px;
   border: none;
   border-radius: 50%;
   background-color: var(--btn-base-bg);

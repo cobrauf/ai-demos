@@ -29,7 +29,11 @@
 .buttonContainer {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* background-color: var(--text-color); */
   gap: 0.5rem;
+  margin-bottom: 2rem;
 }
 
 .resetButtonContainer {
