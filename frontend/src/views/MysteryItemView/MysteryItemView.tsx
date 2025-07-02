@@ -4,6 +4,7 @@ import ChatMessage from "../../components/ChatMessage/ChatMessage";
 import ChatInput from "../../components/ChatInput/ChatInput";
 import TopBar from "../../components/TopBar/TopBar";
 import NewChatIcon from "../../components/ChatInput/NewChatIcon";
+import SharedModal from "../../components/SharedModal/SharedModal";
 import {
   invokeMysteryItemGraph,
   resetMysteryItemSession,
@@ -56,6 +57,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     WELCOME_MESSAGE,
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [sessionId, setSessionId] = useState<string>(() => {
     // Get or create a persistent session ID for today
     const today = new Date().toDateString();
@@ -184,6 +186,19 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     console.log("New game started with fresh session ID:", newSessionId);
   };
 
+  const handleNewChatClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleModalConfirm = () => {
+    setIsModalOpen(false);
+    handleNewGame();
+  };
+
   return (
     <div className={styles.chatContainer}>
       <TopBar title="The Guessing Game" onMenuClick={onMenuClick} />
@@ -204,7 +219,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         <div className={styles.buttonAndLabel}>
           <Button
             variant="iconCircle"
-            onClick={handleNewGame}
+            onClick={handleNewChatClick}
             disabled={isLoading}
             type="button"
             className={styles.newGameButton}
@@ -217,6 +232,15 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
       <footer className={styles.inputArea}>
         <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
       </footer>
+
+      <SharedModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onConfirm={handleModalConfirm}
+        message="Start new chat? This will also reset your game."
+        confirmButtonText="Start New Chat"
+        cancelButtonText="Cancel"
+      />
     </div>
   );
 };
