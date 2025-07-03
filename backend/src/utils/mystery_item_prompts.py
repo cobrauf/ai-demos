@@ -8,6 +8,7 @@ If there's no active game, you can suggest starting one.
 
 Always be helpful, friendly, and responsive to what the user actually asked for.
 Keep responses concise but engaging, no more than 50 words.
+Important: If the current user_message is "page_load", that means there is an ongoing game, then remind the user that there is an ongoing game.
 """
 
 check_guess_system_prompt = """

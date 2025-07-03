@@ -33,7 +33,6 @@ logger = logging.getLogger(__name__)
 memory = MemorySaver()
 
 class AgentState(TypedDict):
-    game_started: bool = False
     secret_answer: str | None = None
     last_activity: float
     messages: Annotated[Sequence[BaseMessage], add_messages]
@@ -73,7 +72,6 @@ def generate_mystery_item() -> dict:
     logger.info(response.content)
     return {
         "secret_answer": response.content.strip(),
-        "game_started": True,
         "messages": [AIMessage(content="I've thought of a new secret answer! You can start asking questions or try to guess what it is.")]
     }
 
@@ -103,7 +101,6 @@ def check_guess(user_guess: str, secret_answer: str, history: str) -> dict:
     if is_correct:
         return {
             "secret_answer": None,
-            "game_started": False,
             "messages": [message]
         }
     else:
@@ -167,7 +164,6 @@ def reset_game(secret_answer: str | None = None) -> dict:
         
     return {
         "secret_answer": None,
-        "game_started": False,
         "messages": [AIMessage(content=message)]
     }
 
@@ -183,8 +179,24 @@ def node_game_agent(state: AgentState) -> AgentState:
     '''
     This node is responsible for the game logic, it only calls tools.
     '''
+    messages = state["messages"]
+    last_message = messages[-1] if messages else None
     system_message_content = game_agent_system_prompt
-    
+
+    # for dev
+    if last_message:
+        logger.info(f"last_message.content: {last_message.content}")
+
+    if last_message and last_message.content == "page_load":
+        secret_answer = state.get("secret_answer")
+        
+        if not secret_answer:
+            logger.info("--- page_load: no secret answer, instructing agent to generate one ---")
+            system_message_content += "\nImportant:The user has just loaded the page and there is no secret answer. You MUST use the `generate_mystery_item` tool to create a new secret answer now."
+        else:
+            logger.info("--- page_load: secret answer exists, instructing agent to remind user ---")
+            system_message_content += "\nImportant: The user has just loaded the page and a game is already in progress. You MUST use the `general_chat` tool to remind them that there's an ongoing game."
+            
     # Trim message history and update last_activity
     trimmed_messages = trim_message_history(state["messages"])
     current_time = time.time()
@@ -271,7 +283,6 @@ def reset_session_state(session_id: str) -> bool:
         
         # Clear the session state by putting an empty state
         empty_state = {
-            "game_started": False,
             "secret_answer": None,
             "messages": [],
             "last_activity": time.time()
