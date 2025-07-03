@@ -3,6 +3,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 import logging
+import time
 from src.config.llm_config import llm
 from typing import Annotated, TypedDict, Sequence 
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, ToolMessage, AIMessage
@@ -12,7 +13,12 @@ from langgraph.graph import StateGraph, END
 from langchain_core.tools import tool
 from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
-from src.utils.mystery_item_helpers import format_history_for_prompt, extract_last_tool_call
+from src.utils.mystery_item_helpers import (
+    format_history_for_prompt, 
+    extract_last_tool_call,
+    trim_message_history,
+    schedule_cleanup
+)
 from src.utils.mystery_item_prompts import (
     generate_mystery_item_system_prompt,
     general_chat_system_prompt,
@@ -29,6 +35,7 @@ memory = MemorySaver()
 class AgentState(TypedDict):
     game_started: bool = False
     secret_answer: str | None = None
+    last_activity: float
     messages: Annotated[Sequence[BaseMessage], add_messages]
     
 # tools ------------------------------------------------------------
@@ -169,13 +176,20 @@ tool_node = ToolNode(tools)
 llm_w_tools = llm.bind_tools(tools, tool_choice="any") # force it to choose a tool
 # END tools ------------------------------------------------------------
 
+# Initialize cleanup scheduler
+schedule_cleanup(memory)
+
 def node_game_agent(state: AgentState) -> AgentState:
     '''
     This node is responsible for the game logic, it only calls tools.
     '''
     system_message_content = game_agent_system_prompt
     
-    history = format_history_for_prompt(state["messages"])
+    # Trim message history and update last_activity
+    trimmed_messages = trim_message_history(state["messages"])
+    current_time = time.time()
+    
+    history = format_history_for_prompt(trimmed_messages)
     
     system_message_content += f"""
 
@@ -193,9 +207,9 @@ def node_game_agent(state: AgentState) -> AgentState:
     
     # print(f"system_message_content: {system_message_content}")
     system_message = SystemMessage(content=system_message_content)
-    prompt = [system_message] + state["messages"] 
+    prompt = [system_message] + list(trimmed_messages)
     response = llm_w_tools.invoke(prompt)
-    return {"messages": [response]}
+    return {"messages": [response], "last_activity": current_time}
 
 graph = StateGraph(AgentState)
 graph.add_node("agent", node_game_agent)
@@ -219,7 +233,8 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     logger.info(f"--- invoke_graph ---")
     config = {"configurable": {"thread_id": session_id}}
     
-    initial_state = {"messages": []}
+    current_time = time.time()
+    initial_state = {"messages": [], "last_activity": current_time}
     if user_message:
         initial_state["messages"].append(HumanMessage(content=user_message))
 
@@ -258,7 +273,8 @@ def reset_session_state(session_id: str) -> bool:
         empty_state = {
             "game_started": False,
             "secret_answer": None,
-            "messages": []
+            "messages": [],
+            "last_activity": time.time()
         }
         
         # Put the empty state to effectively reset the session
