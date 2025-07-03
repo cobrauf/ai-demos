@@ -10,6 +10,7 @@ import {
   resetMysteryItemSession,
 } from "../../services/api";
 import { Button } from "../../components/Button/Button";
+import { getSessionId } from "../../utils/sessionUtils";
 
 const WELCOME_MESSAGE: Message = {
   id: "welcome",
@@ -64,31 +65,10 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [sessionId, setSessionId] = useState<string>(() => {
-    // Get or create a persistent session ID for today
-    const today = new Date().toDateString();
-    const sessionKey = `mystery_game_session_${today}`;
-
-    const existingSession = localStorage.getItem(sessionKey);
-    if (existingSession) {
-      console.log("Resuming existing session:", existingSession);
-      return existingSession;
-    }
-
-    const newSessionId = `session_${Date.now()}_${Math.random()
-      .toString(36)
-      .substr(2, 9)}`;
-    localStorage.setItem(sessionKey, newSessionId);
-    console.log("Created new daily session:", newSessionId);
-
-    for (let i = 1; i <= 7; i++) {
-      const oldDate = new Date();
-      oldDate.setDate(oldDate.getDate() - i);
-      const oldSessionKey = `mystery_game_session_${oldDate.toDateString()}`;
-      localStorage.removeItem(oldSessionKey);
-    }
-
-    return newSessionId;
+  const [sessionId] = useState<string>(() => {
+    const deviceSessionId = getSessionId("mystery_item");
+    console.log("Using device-based session ID:", deviceSessionId);
+    return deviceSessionId;
   });
   const messageAreaRef = useRef<HTMLDivElement>(null);
 
@@ -130,7 +110,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
 
     try {
       const response = await invokeMysteryItemGraph(
-        sessionId, // Use the persistent daily session ID
+        sessionId, // Use the persistent device-based session ID
         text
       );
 
@@ -180,7 +160,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
   };
 
   const handleNewGame = async () => {
-    // First reset the backend state for the current session
+    // Reset the backend state for the current session
     try {
       await resetMysteryItemSession(sessionId);
       console.log("Backend session reset successfully");
@@ -188,18 +168,11 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
       console.error("Failed to reset backend session:", error);
     }
 
-    // Generate a completely new session ID and update storage
-    const newSessionId = `session_${Date.now()}_${Math.random()
-      .toString(36)
-      .substr(2, 9)}`;
-    const today = new Date().toDateString();
-    const sessionKey = `mystery_game_session_${today}`;
-
-    localStorage.setItem(sessionKey, newSessionId);
-    setSessionId(newSessionId);
+    // Reset the frontend conversation state
+    // Note: We keep the same sessionId since it's device-based and persistent
     setConversation([WELCOME_MESSAGE]);
     setIsLoading(false);
-    console.log("New game started with fresh session ID:", newSessionId);
+    console.log("New game started with session ID:", sessionId);
   };
 
   const handleNewChatClick = () => {
