@@ -153,10 +153,10 @@ def reset_game(secret_answer: str | None = None) -> dict:
     
     logger.info(f"--- reset_game ---")
     
-    if secret_answer:
+    if secret_answer and secret_answer is not None:
         message = f"Sure, the secret answer was '{secret_answer}'. I've cleared the board. Let me know when you're ready to play again."
     else:
-        message = "Sure, I've cleared the board. Let me know when you're ready to play again."
+        message = "Sure, just let me know when you're ready to play again."
         
     return {
         "secret_answer": None,
