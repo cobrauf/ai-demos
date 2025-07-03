@@ -71,16 +71,26 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     return deviceSessionId;
   });
   const messageAreaRef = useRef<HTMLDivElement>(null);
+  const initialLoadHandled = useRef(false);
 
   useEffect(() => {
     // Show loading dots for 2 seconds, then show welcome message
     if (conversation.length === 1 && conversation[0].id === "initial-loading") {
       const timer = setTimeout(() => {
         setConversation([WELCOME_MESSAGE]);
-      }, 2000);
+      }, 1200);
       return () => clearTimeout(timer);
     }
-  }, []);
+
+    if (
+      conversation.length === 1 &&
+      conversation[0].id === "welcome" &&
+      !initialLoadHandled.current
+    ) {
+      initialLoadHandled.current = true;
+      handleSendMessage("page_load");
+    }
+  }, [conversation]);
 
   useEffect(() => {
     // Scroll to the bottom of the message area
@@ -98,7 +108,11 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
       text,
     };
 
-    setConversation((prev) => [...prev, userMessage]);
+    // Do not show the page_load message in the UI
+    if (text !== "page_load") {
+      setConversation((prev) => [...prev, userMessage]);
+    }
+
     setIsLoading(true);
 
     const aiLoadingMessage: Message = {

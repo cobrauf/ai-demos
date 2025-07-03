@@ -2,6 +2,7 @@ import re
 import logging
 import time
 import threading
+import json
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage, SystemMessage
 from typing import Sequence
 
@@ -46,8 +47,9 @@ def format_history_for_prompt(messages: Sequence[BaseMessage]) -> str:
     conversation_history = "\n".join(
         f"{msg.__class__.__name__}: {msg.content}" for msg in recent_messages
     )
-    logger.info(f"--- conversation_history ---")
+    logger.info(f"###### conversation_history #####")
     logger.info(conversation_history)
+    logger.info("###### end of conversation_history #####")
     return conversation_history.strip()
 
 def extract_last_ai_response(messages: Sequence[BaseMessage]) -> str:
@@ -150,3 +152,22 @@ def schedule_cleanup(memory):
     cleanup_thread = threading.Thread(target=run_cleanup, daemon=True)
     cleanup_thread.start()
     logger.info("Scheduled periodic cleanup thread started")
+
+def extract_secret_from_messages(messages) -> str | None:
+    """Extract secret_answer from ToolMessage content in the message history."""
+    for msg in reversed(messages):
+        if hasattr(msg, 'name') and msg.name == 'generate_mystery_item':
+            try:
+                content = msg.content
+                
+                if isinstance(content, str) and 'secret_answer' in content:
+                    # Look for 'secret_answer': 'value' pattern (single quotes)
+                    secret_match = re.search(r"'secret_answer':\s*'([^']+)'", content)
+                    if secret_match:
+                        return secret_match.group(1)
+                    
+            except Exception as e:
+                logger.warning(f"Failed to parse tool message content: {e}")
+                continue
+    
+    return None
