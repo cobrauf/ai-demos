@@ -17,7 +17,8 @@ from src.utils.mystery_item_helpers import (
     format_history_for_prompt, 
     extract_last_tool_call,
     trim_message_history,
-    schedule_cleanup
+    schedule_cleanup,
+    extract_secret_from_messages
 )
 from src.utils.mystery_item_prompts import (
     generate_mystery_item_system_prompt,
@@ -68,8 +69,8 @@ def generate_mystery_item() -> dict:
     system_message = SystemMessage(content=generated_mystery_prompt)
     
     response = llm.invoke([system_message])
-    logger.info(f"--- generate_mystery_item response.content ---")
-    logger.info(response.content)
+    logger.info(f"--- generate_mystery_item_tool ---")
+    logger.info(f"secret_answer: {response.content}")
     return {
         "secret_answer": response.content.strip(),
         "messages": [AIMessage(content="I've thought of a new secret answer! You can start asking questions or try to guess what it is.")]
@@ -183,13 +184,12 @@ def node_game_agent(state: AgentState) -> AgentState:
     last_message = messages[-1] if messages else None
     system_message_content = game_agent_system_prompt
 
-    # for dev
-    if last_message:
-        logger.info(f"last_message.content: {last_message.content}")
+    # Check for secret_answer once - either in state or extract from messages
+    secret_answer = state.get("secret_answer")
+    if not secret_answer:
+        secret_answer = extract_secret_from_messages(state["messages"])
 
     if last_message and last_message.content == "page_load":
-        secret_answer = state.get("secret_answer")
-        
         if not secret_answer:
             logger.info("--- page_load: no secret answer, instructing agent to generate one ---")
             system_message_content += "\nImportant:The user has just loaded the page and there is no secret answer. You MUST use the `generate_mystery_item` tool to create a new secret answer now."
@@ -210,8 +210,7 @@ def node_game_agent(state: AgentState) -> AgentState:
     **End of conversation history**
     """
 
-    if state.get("secret_answer"):
-        secret_answer = state.get('secret_answer')
+    if secret_answer:
         system_message_content += f"""
 
         The current secret answer is: {secret_answer}. Use this when calling tools that require it.
