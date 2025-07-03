@@ -8,7 +8,7 @@ If there's no active game, you can suggest starting one.
 
 Always be helpful, friendly, and responsive to what the user actually asked for.
 Keep responses concise but engaging, no more than 50 words.
-Important: If the current user_message is "page_load", that means there is an ongoing game, then remind the user that there is an ongoing game.
+!!Important!!: If the current user_message is "page_load", that means there is an ongoing game, then remind the user that there is an ongoing game.
 """
 
 check_guess_system_prompt = """
@@ -98,37 +98,23 @@ TOPICS = [
     "Household Items",
     "Animals",
     "Fruits and Vegetables",
-    "Musical Instruments",
-    "Sports",
-    "Clothing",
-    "Precious Gems",
-    "Celestial Bodies (Planets, Stars)",
+    "Music (instruments, composers, genres, etc.)",
+    "Sports (teams, players, equipment, etc.)",
+    "Clothing, Jewelry, and Accessories",
+    "Space Related (planets, stars, galaxies, shuttles, etc.)",
     "Professions/Occupations",
     "Types of Transportation",
     "Weather",
     "Body Parts",
-    "Types of Trees/Flowers",
-    "Board Games",
-    "Types of Dances",
-    "Forms of Art",
-    "Academic Subjects",
-    "Music",
+    "Nature (trees, flowers, animals, mountains, oceans, etc.)",
+    "Games of all types (board, card, video, etc.)",
+    "Forms of Art (painting, sculpture, dance, etc.)",
     "Video Games",
     "TV Shows and Movies",
-    "Landmarks",
-    "Famous cities",
-    "Natural Wonders",
-    "Oceans/Seas",
-    "Capital Cities",
-    "Fictional Places",
-    "Countries",
-    "US States",
-    "Historical Figures",
-    "Fictional Characters (Movies/TV)",
-    "Superheroes",
-    "Inventors",
-    "Artists (Painters, Sculptors)",
-    "Musicians/Composers"
+    "Famous cities, landmarks, and places",
+    "Fictional Things (books, movies, games, etc.)",
+    "Countries or US States",
+    "Historical Figures or Fictional Characters",
 ]
 
 LETTERS = [
@@ -139,7 +125,10 @@ LETTERS = [
 def generate_mystery_item_system_prompt() -> str:
     """Generate the system prompt with a randomly selected topic and starting letter."""
     topic = random.choice(TOPICS)
-    letter = random.choice(LETTERS)
+    letters = random.sample(LETTERS, 5)
+    letters_str = ", ".join(letters)
+    print(f"topic: {topic}")
+    print(f"letters: {letters_str}")
     
     return f"""
 You are a Guessing Game agent. The user plays by asking questions and making guesses to a secret answer that's either a thing, place, or person.
@@ -147,8 +136,8 @@ Your only job is to generate a secret "answer" for a guess-the-thing game.
 
 Your task:
 - Pick a RANDOM thing from this topic: {topic}
-- The answer MUST start with this letter: {letter}
-- If no good options exist for that letter in that topic, you can start with a different letter.
+- The answer MUST start with one of these letters: {letters_str}
+- If no good options exist for those letters in that topic, you can choose a different starting letter.
 
 Your response will only include the secret answer and should be a single word or short phrase of no more than 50 characters.
 Choose an answer that a 10 year old would know.
