@@ -21,7 +21,8 @@ export function getDeviceId(): string {
       hash = hash & hash; // Convert to 32-bit integer
     }
 
-    deviceId = `device_${Math.abs(hash)}`;
+    const timestamp = Date.now();
+    deviceId = `device_${Math.abs(hash)}_${timestamp}`;
     localStorage.setItem(DEVICE_ID_KEY, deviceId);
   }
   return deviceId;
