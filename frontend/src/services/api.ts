@@ -36,6 +36,14 @@ export const invokeMysteryItemGraph = async (
     session_id,
     message,
   });
+
+  // for dev
+  console.log("=== Mystery Item API Response ===");
+  console.log("Secret Answer:", response.data.secret_answer);
+  console.log("Tool Name:", response.data.tool_name);
+  console.log("User Message:", message);
+  console.log("AI Response:", response.data.response);
+
   return response.data;
 };
 

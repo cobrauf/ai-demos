@@ -258,7 +258,12 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
         current_state = app.get_state(config)
         messages = current_state.values["messages"]
         tool_name = extract_last_tool_call(messages)
-        return {"messages": messages, "tool_name": tool_name}
+        secret_answer = extract_secret_from_messages(messages)  # for dev
+        return {
+            "messages": messages,
+            "tool_name": tool_name,
+            "secret_answer": secret_answer
+        }
 
     # Fallback to get the current state if the last chunk wasn't the tool node
     current_state = app.get_state(config)
@@ -266,7 +271,12 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
     logger.info(current_state)
     messages = current_state.values["messages"]
     tool_name = extract_last_tool_call(messages)
-    return {"messages": messages, "tool_name": tool_name}
+    secret_answer = extract_secret_from_messages(messages)  # for dev
+    return {
+        "messages": messages,
+        "tool_name": tool_name,
+        "secret_answer": secret_answer
+    }
 
 def reset_session_state(session_id: str) -> bool:
     """
@@ -280,14 +290,12 @@ def reset_session_state(session_id: str) -> bool:
         logger.info(f"--- reset_session_state for session: {session_id} ---")
         config = {"configurable": {"thread_id": session_id}}
         
-        # Clear the session state by putting an empty state
         empty_state = {
             "secret_answer": None,
-            "messages": [],
-            "last_activity": time.time()
+            "last_activity": time.time(),
+            "messages": []
         }
         
-        # Put the empty state to effectively reset the session
         app.update_state(config, empty_state)
         logger.info(f"Session {session_id} reset successfully")
         return True

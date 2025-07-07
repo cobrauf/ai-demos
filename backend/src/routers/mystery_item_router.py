@@ -20,15 +20,6 @@ class ChatRequest(BaseModel):
 
 class ResetRequest(BaseModel):
     session_id: str
-    
-    
-# @router.post("/") # for general chat
-# def chat_mystery_item(request: ChatRequest):
-#     chat_message = HumanMessage(content=request.message)    
-#     result = mystery_item_service.general_chat([chat_message])
-#     ai_message = AIMessage(content=result)
-#     return {"message_history": [ai_message]}
-
 
 @router.post("/invoke")
 def invoke_mystery_item(request: ChatRequest):
@@ -39,9 +30,9 @@ def invoke_mystery_item(request: ChatRequest):
     
     messages = result["messages"]
     tool_name = result["tool_name"]
-    
+    secret_answer = result["secret_answer"]
     ai_response = extract_last_ai_response(messages)
-    return {"response": ai_response, "tool_name": tool_name}
+    return {"response": ai_response, "tool_name": tool_name, "secret_answer": secret_answer}
 
 @router.post("/reset")
 def reset_mystery_item_session(request: ResetRequest):

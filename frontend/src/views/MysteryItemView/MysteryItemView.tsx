@@ -131,9 +131,6 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         "Sorry, I didn't get a valid response. Please try again.";
       const toolName = response.tool_name;
 
-      console.log("AI response:", aiMessageText);
-      console.log("Tool name:", toolName);
-
       setConversation((prev) => {
         const newConversation = prev.filter(
           (msg) => msg.id !== aiLoadingMessage.id
