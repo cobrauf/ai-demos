@@ -15,11 +15,9 @@ import { getSessionId } from "../../utils/sessionUtils";
 const WELCOME_MESSAGE: Message = {
   id: "welcome",
   sender: "ai",
-  text: `Welcome to The Guessing Game! I'll pick a mystery thing, place, or person as the secret answer.
+  text: `Welcome to The Guessing Game! I'll start by picking a mystery thing, place, or person as the SECRET ANSWER.
 
-You can ask me questions to help you narrow down the secret answer. If you get stuck, you can ask for a hint.
-
-Let me know when you're ready to start!`,
+Ask me questions to help you guess what it is. If you get stuck, you can ask for a hint.`,
 };
 
 const LOADING_MESSAGE: Message = {
