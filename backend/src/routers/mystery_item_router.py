@@ -36,7 +36,19 @@ def invoke_mystery_item(request: ChatRequest):
 
 @router.post("/reset")
 def reset_mystery_item_session(request: ResetRequest):
-    """Reset the mystery item game session, clearing all backend state."""
-    success = mystery_item_service.reset_session_state(request.session_id)
-    return {"success": success, "message": "Session reset successfully"}
+    """Reset the mystery item game session, clearing all backend state and starting a new game."""
+    
+    result = mystery_item_service.reset_session_state(request.session_id)
+    messages = result["messages"]
+    tool_name = result["tool_name"] 
+    secret_answer = result["secret_answer"]
+    ai_response = extract_last_ai_response(messages)
+    
+    return {
+        "success": True, 
+        "response": ai_response, 
+        "tool_name": tool_name, 
+        "secret_answer": secret_answer,
+        "message": "Session reset successfully and new game started"
+    }
 

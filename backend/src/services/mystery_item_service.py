@@ -278,31 +278,42 @@ def invoke_mystery_item_graph(session_id: str, user_message: str | None = None) 
         "secret_answer": secret_answer
     }
 
-def reset_session_state(session_id: str) -> bool:
+def reset_session_state(session_id: str) -> dict:
     """
-    Resets the session state by clearing it from memory.
+    Resets the session state by deleting the thread from memory and starts a new game.
     Args:
         session_id: The session ID to reset.
     Returns:
-        True if reset was successful, False otherwise.
+        Dict with the new game response, or error dict if reset failed.
     """
     try:
-        logger.info(f"--- reset_session_state for session: {session_id} ---")
-        config = {"configurable": {"thread_id": session_id}}
         
-        empty_state = {
-            "secret_answer": None,
-            "last_activity": time.time(),
-            "messages": []
-        }
+        # Use the checkpointer's delete_thread method to completely clear the session
+        memory.delete_thread(session_id)
         
-        app.update_state(config, empty_state)
+        # # Verify the reset worked by checking if there are any checkpoints
+        # config = {"configurable": {"thread_id": session_id}}
+        # try:
+        #     current_state = app.get_state(config)
+        #     logger.info(f"--- current_state after reset ---")
+        #     logger.info(current_state)
+        # except Exception as state_check_error:
+        #     # This is expected if the thread was completely deleted
+        #     logger.info(f"Thread {session_id} successfully deleted - no state found: {state_check_error}")
+        
         logger.info(f"Session {session_id} reset successfully")
-        return True
+        
+        # Start a new game and return the response
+        return invoke_mystery_item_graph(session_id, "page_load")
         
     except Exception as e:
         logger.error(f"Failed to reset session {session_id}: {e}")
-        return False
+        return {
+            "error": f"Failed to reset session: {str(e)}",
+            "messages": [],
+            "tool_name": None,
+            "secret_answer": None
+        }
 
 # output to a png ---------------------------------------------------
 # graph_png_bytes = app.get_graph().draw_mermaid_png()

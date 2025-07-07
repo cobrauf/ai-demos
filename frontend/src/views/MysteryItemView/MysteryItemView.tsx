@@ -171,15 +171,46 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
   const handleNewGame = async () => {
     // Reset the backend state for the current session
     try {
-      await resetMysteryItemSession(sessionId);
+      const resetResponse = await resetMysteryItemSession(sessionId);
       console.log("Backend session reset successfully");
+
+      if (resetResponse.success && resetResponse.response) {
+        const aiMessage: Message = {
+          id: `ai-${Date.now()}-reset`,
+          sender: "ai",
+          text: resetResponse.response,
+        };
+
+        const newConversation: Message[] = [];
+
+        if (resetResponse.tool_name) {
+          newConversation.push({
+            id: `tool-${Date.now()}-reset`,
+            sender: "tool",
+            text: `Tool call: ${resetResponse.tool_name}`,
+          });
+        }
+
+        newConversation.push(aiMessage);
+
+        setConversation(newConversation);
+        console.log(
+          "New game started with AI response:",
+          resetResponse.response
+        );
+      } else {
+        // Fallback to welcome message if reset didn't return a proper response
+        setConversation([WELCOME_MESSAGE]);
+        console.log(
+          "Reset successful but no AI response, showing welcome message"
+        );
+      }
     } catch (error) {
       console.error("Failed to reset backend session:", error);
+      // Fallback to welcome message on error
+      setConversation([WELCOME_MESSAGE]);
     }
 
-    // Reset the frontend conversation state
-    // Note: We keep the same sessionId since it's device-based and persistent
-    setConversation([WELCOME_MESSAGE]);
     setIsLoading(false);
     console.log("New game started with session ID:", sessionId);
   };
