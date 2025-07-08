@@ -24,6 +24,14 @@ An interactive guessing game built with **LangGraph**:
 - **LangGraph/LangSmith** AI agent orchestration and tracing
 - **OpenRouter** for multi-model LLM access
 
+## Screenshots
+
+<img src="./docs/media/guessingGameScreenshot1.jpg" width="400">
+
+<img src="./docs/media/guessingGameScreenshot2.jpg" width="400">
+
+## Project Structure
+
 ```
 ├── backend/
 │   ├── src/
@@ -66,14 +74,5 @@ An interactive guessing game built with **LangGraph**:
         │
         └── App.tsx                    # <--- Main router & layout
 ```
-
-<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
-    <div style="text-align: center;">
-        <img src="./docs/media/guessingGameScreenshot1.jpg" width="200" alt="Screenshot of the guessing game interface">
-    </div>
-    <div style="text-align: center;">
-        <img src="./docs/media/guessingGameScreenshot2.jpg" width="200" alt="Screenshot of a successful guess in the guessing game">
-    </div>
-</div>
 
 ## 🔮 More Demos Coming Soon
