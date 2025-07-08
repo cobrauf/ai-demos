@@ -69,11 +69,9 @@ An interactive guessing game built with **LangGraph**:
 
 <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
     <div style="text-align: center;">
-        **Game Interface:**
         <img src="./docs/media/guessingGameScreenshot1.jpg" width="300" alt="Screenshot of the guessing game interface">
     </div>
     <div style="text-align: center;">
-        **Successful Guess:**
         <img src="./docs/media/guessingGameScreenshot2.jpg" width="300" alt="Screenshot of a successful guess in the guessing game">
     </div>
 </div>
