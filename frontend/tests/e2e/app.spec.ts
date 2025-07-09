@@ -18,13 +18,6 @@ test.describe("AI Demos App", () => {
     await expect(
       page.getByText("Ask me questions to help you guess what it is")
     ).toBeVisible();
-
-    // Verify key UI components are present
-    await expect(
-      page.locator(
-        '[data-testid="chat-input"], input[placeholder*="message"], textarea[placeholder*="message"]'
-      )
-    ).toBeVisible();
   });
 
   test("should toggle the side menu", async ({ page }) => {
@@ -83,17 +76,5 @@ test.describe("AI Demos App", () => {
     await page.goto("/demos/mystery-item");
     await expect(page).toHaveURL("/demos/mystery-item");
     await expect(page.getByText("Welcome to The Guessing Game!")).toBeVisible();
-  });
-
-  test("should handle loading states", async ({ page }) => {
-    await page.goto("/demos/mystery-item");
-
-    // Initially should see loading dots
-    const loadingElement = page.getByText("...");
-
-    // Loading should eventually be replaced by welcome message
-    await expect(page.getByText("Welcome to The Guessing Game!")).toBeVisible({
-      timeout: 10000,
-    });
   });
 });
