@@ -33,32 +33,17 @@ test.describe("AI Demos App", () => {
     // Wait for the page to load
     await expect(page.getByText("Welcome to The Guessing Game!")).toBeVisible();
 
-    // Find and click the menu button (hamburger icon or menu toggle)
-    const menuButton = page
-      .locator("button")
-      .filter({ hasText: /menu|☰|≡/ })
-      .or(page.locator('[data-testid="menu-button"]'))
-      .or(page.locator('button[aria-label*="menu" i]'))
-      .or(page.locator('button:has-text("Menu")'))
-      .first();
+    // Find and click the hamburger menu (☰) - it's a div element in the TopBar
+    const menuTrigger = page.getByText("☰");
 
-    // If we can't find a specific menu button, look for any clickable element that might open the menu
-    const fallbackMenuTrigger = page
-      .locator("header button, .top-bar button, nav button")
-      .first();
+    // Click the menu trigger
+    await menuTrigger.click();
 
-    try {
-      await menuButton.click({ timeout: 3000 });
-    } catch {
-      // Fallback to clicking any button in header/top area
-      await fallbackMenuTrigger.click();
-    }
-
-    // Check if side menu or navigation items become visible
-    // Look for common menu indicators
+    // Check if side menu becomes visible
+    // Look for menu content or navigation items
     await expect(
       page
-        .locator('.side-menu, .sidebar, nav, [data-testid="side-menu"]')
+        .locator(".side-menu, .sidebar, nav")
         .or(page.getByText("Mystery Item").or(page.getByText("Placeholder")))
     ).toBeVisible({ timeout: 5000 });
   });
