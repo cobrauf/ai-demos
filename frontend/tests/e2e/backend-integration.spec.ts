@@ -2,13 +2,8 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Backend Integration Tests", () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the mystery item game
     await page.goto("/demos/mystery-item");
-
-    // Wait for the welcome message to ensure the app is loaded
     await expect(page.getByText("Welcome to The Guessing Game!")).toBeVisible();
-
-    // Wait a bit more for the backend to be ready
     await page.waitForTimeout(5000);
   });
 
@@ -23,7 +18,6 @@ test.describe("Backend Integration Tests", () => {
     await expect(page.getByText("Tool call: answer_question")).toBeVisible({
       timeout: 5000,
     });
-    await page.waitForTimeout(1000);
 
     // Test 2: Make a guess - should trigger check_guess tool
     await chatInput.fill("Is it a dog?");
@@ -31,7 +25,6 @@ test.describe("Backend Integration Tests", () => {
     await expect(page.getByText("Tool call: check_guess")).toBeVisible({
       timeout: 5000,
     });
-    await page.waitForTimeout(1000);
 
     // Test 3: Ask for a hint - should trigger give_hint tool
     await chatInput.fill("hint please");
@@ -39,7 +32,20 @@ test.describe("Backend Integration Tests", () => {
     await expect(page.getByText("Tool call: give_hint")).toBeVisible({
       timeout: 5000,
     });
-    await page.waitForTimeout(1000);
+
+    //Test 4: Send a non-game related message
+    await chatInput.fill("Write a haiku about the weather");
+    await chatInput.press("Enter");
+    await expect(page.getByText("Tool call: general_chat")).toBeVisible({
+      timeout: 5000,
+    });
+
+    //Test 5: End the game
+    await chatInput.fill("I want to stop playing");
+    await chatInput.press("Enter");
+    await expect(page.getByText("Tool call: reset_game")).toBeVisible({
+      timeout: 5000,
+    });
   });
 
   //   test("should handle backend errors gracefully", async ({ page }) => {
