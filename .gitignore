@@ -14,6 +14,10 @@ pip-selfcheck.json
 # LangGraph
 backend/.langgraph_api/
 
+# Playwright
+/frontend/playwright-report/
+/frontend/test-results/
+
 # Node
 /frontend/node_modules/
 /frontend/dist/
