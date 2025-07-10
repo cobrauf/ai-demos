@@ -45,10 +45,10 @@
   margin-left: auto;
 }
 
-.explainButton:hover {
+/* .explainButton:hover {
   background-color: var(--text-color);
   color: var(--background-color);
-}
+} */
 
 .title {
   font-size: 1.75rem;
