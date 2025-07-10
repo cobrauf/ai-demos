@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import styles from "./SharedModal.module.css";
+import styles from "./ExplainModal.module.css";
 
 interface ExplainModalProps {
   isOpen: boolean;
@@ -45,38 +45,25 @@ const ExplainModal: React.FC<ExplainModalProps> = ({ isOpen, onClose }) => {
         </button>
         <div className={styles.modalContent}>
           <div className={styles.message}>
-            <h2 style={{ marginBottom: "20px", color: "var(--text-color)" }}>
-              How to Play The Guessing Game
-            </h2>
+            <h3 style={{ marginBottom: "20px", color: "var(--text-color)" }}>
+              How to Play
+            </h3>
             <div style={{ textAlign: "left", lineHeight: "1.6" }}>
               <p>
-                <strong>🎯 Goal:</strong> I've picked a mystery item, and your
-                job is to guess what it is!
+                <strong>🎯 Goal:</strong> Guess the SECRET ANSWER
               </p>
 
               <p>
-                <strong>🤔 How to Play:</strong>
+                <strong>💡 How to Play:</strong>
               </p>
               <ul style={{ paddingLeft: "20px", marginBottom: "15px" }}>
-                <li>Ask me yes/no questions about the mystery item</li>
-                <li>Make specific guesses when you think you know</li>
+                <li>Ask questions to narrow down the answer</li>
                 <li>Request hints if you get stuck</li>
+                <li>You can tell the AI to restart or end the game anytime</li>
               </ul>
 
               <p>
-                <strong>💡 Tips:</strong>
-              </p>
-              <ul style={{ paddingLeft: "20px", marginBottom: "15px" }}>
-                <li>
-                  Start with broad categories (living/non-living, big/small)
-                </li>
-                <li>Narrow down based on my answers</li>
-                <li>Don't be afraid to make educated guesses!</li>
-              </ul>
-
-              <p>
-                <strong>🔄 New Game:</strong> Click the "New Chat" button to
-                start over with a different mystery item.
+                <strong> How this game was built:</strong>
               </p>
             </div>
           </div>
