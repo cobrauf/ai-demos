@@ -1,40 +1,36 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "./PlaceholderView.module.css";
 import TopBar from "../../components/TopBar/TopBar";
 import { Button } from "../../components/Button/Button";
-import ExplainModal from "../../components/SharedModal/ExplainModal";
-import PlaceholderExplainContent from "../../components/SharedModal/PlaceholderExplainContent";
 
 interface PlaceholderViewProps {
   onMenuClick: () => void;
+  onExplainClick: () => void;
 }
 
-const PlaceholderView: React.FC<PlaceholderViewProps> = ({ onMenuClick }) => {
-  const [isExplainModalOpen, setIsExplainModalOpen] = useState(false);
-
-  const handleExplainClick = () => {
-    setIsExplainModalOpen(true);
-  };
-
-  const handleExplainModalClose = () => {
-    setIsExplainModalOpen(false);
-  };
-
+const PlaceholderView: React.FC<PlaceholderViewProps> = ({
+  onMenuClick,
+  onExplainClick,
+}) => {
   return (
     <div className={styles.container}>
       <TopBar
         title="Placeholder"
         onMenuClick={onMenuClick}
-        onExplainClick={handleExplainClick}
+        onExplainClick={onExplainClick}
       />
       <main className={styles.contentArea}>
         <div className={styles.welcomeSection}>
-          <h1 className={styles.title}>Other demos coming soon...</h1>
+          <h1 className={styles.title}>Other demos WIP...</h1>
           {/* <p className={styles.subtitle}>
             Explore various AI-powered demonstrations and interactive
             experiences.
           </p> */}
         </div>
+        {/* <Button variant="cancel">cancel</Button>
+        <Button variant="disabled">disabled</Button>
+        <Button variant="icon">icon</Button>
+        <Button variant="iconCircle">iconCircle</Button> */}
 
         {/* <div className={styles.featuresGrid}>
           <div className={styles.featureCard}>
@@ -75,13 +71,6 @@ const PlaceholderView: React.FC<PlaceholderViewProps> = ({ onMenuClick }) => {
           <Button variant="secondary">Learn More</Button>
         </div>
       </footer> */}
-
-      <ExplainModal
-        isOpen={isExplainModalOpen}
-        onClose={handleExplainModalClose}
-      >
-        <PlaceholderExplainContent />
-      </ExplainModal>
     </div>
   );
 };

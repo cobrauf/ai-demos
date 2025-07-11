@@ -5,8 +5,6 @@ import ChatInput from "../../components/ChatInput/ChatInput";
 import TopBar from "../../components/TopBar/TopBar";
 import NewChatIcon from "../../components/ChatInput/NewChatIcon";
 import SharedModal from "../../components/SharedModal/SharedModal";
-import ExplainModal from "../../components/SharedModal/ExplainModal";
-import MysteryItemExplainContent from "../../components/SharedModal/MysteryItemExplainContent";
 import {
   invokeMysteryItemGraph,
   resetMysteryItemSession,
@@ -57,15 +55,18 @@ interface Message {
 
 interface MysteryItemViewProps {
   onMenuClick: () => void;
+  onExplainClick: () => void;
 }
 
-const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
+const MysteryItemView: React.FC<MysteryItemViewProps> = ({
+  onMenuClick,
+  onExplainClick,
+}) => {
   const [conversation, setConversation] = useState<Message[]>([
     LOADING_MESSAGE,
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isExplainModalOpen, setIsExplainModalOpen] = useState(false);
   const [sessionId] = useState<string>(() => {
     const deviceSessionId = getSessionId("mystery_item");
     console.log("Using device-based session ID:", deviceSessionId);
@@ -231,20 +232,12 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
     handleNewGame();
   };
 
-  const handleExplainClick = () => {
-    setIsExplainModalOpen(true);
-  };
-
-  const handleExplainModalClose = () => {
-    setIsExplainModalOpen(false);
-  };
-
   return (
     <div className={styles.chatContainer}>
       <TopBar
         title="The Guessing Game"
         onMenuClick={onMenuClick}
-        onExplainClick={handleExplainClick}
+        onExplainClick={onExplainClick}
       />
       <main className={styles.messageArea} ref={messageAreaRef}>
         {conversation.map((msg, index) => (
@@ -285,13 +278,6 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
         confirmButtonText="Confirm"
         cancelButtonText="Cancel"
       />
-
-      <ExplainModal
-        isOpen={isExplainModalOpen}
-        onClose={handleExplainModalClose}
-      >
-        <MysteryItemExplainContent />
-      </ExplainModal>
     </div>
   );
 };

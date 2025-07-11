@@ -1,8 +1,5 @@
 import { StagewiseToolbar } from "@stagewise/toolbar-react"; //for dev
 import { ReactPlugin } from "@stagewise-plugins/react"; //for dev
-import { fetchRoot } from "./services/api"; //for dev
-import { Button } from "./components/Button/Button"; //for dev
-//Don't remove above imports during development
 
 import { useState } from "react";
 import {
@@ -10,30 +7,22 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import "./styles/App.css";
 import SideMenu from "./components/SideMenu/SideMenu";
 import { useTheme } from "./hooks/useTheme";
 import MysteryItemView from "./views/MysteryItemView/MysteryItemView";
 import PlaceholderView from "./views/PlaceholderView/PlaceholderView";
+import ExplainModal from "./components/SharedModal/ExplainModal";
+import MysteryItemExplainContent from "./components/SharedModal/MysteryItemExplainContent";
+import PlaceholderExplainContent from "./components/SharedModal/PlaceholderExplainContent";
 
-function App() {
-  //test button, don't remove during development---------- //for dev
-  const [count, setCount] = useState(0); //for dev
-  const [message, setMessage] = useState(""); //for dev
-  const handleButtonClick = async () => {
-    try {
-      setCount((count) => count + 1);
-      const rootMessage = await fetchRoot();
-      setMessage(JSON.stringify(rootMessage));
-      // console.log("Root message: ", rootMessage);
-    } catch (error) {
-      console.log("Error: ", error);
-    }
-  };
-  //--------------------------------------------------------- //for dev
-
+// Component to handle the routing and modal content
+function AppContent() {
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isExplainModalOpen, setIsExplainModalOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
   const toggleMenu = () => {
@@ -44,11 +33,27 @@ function App() {
     setIsMenuOpen(false);
   };
 
+  const handleExplainClick = () => {
+    setIsExplainModalOpen(true);
+  };
+
+  const handleExplainModalClose = () => {
+    setIsExplainModalOpen(false);
+  };
+
+  const getExplainContent = () => {
+    switch (location.pathname) {
+      case "/demos/mystery-item":
+        return <MysteryItemExplainContent />;
+      case "/demos/placeholder":
+        return <PlaceholderExplainContent />;
+      default:
+        return <PlaceholderExplainContent />;
+    }
+  };
+
   return (
-    <Router>
-      {/* {import.meta.env.DEV && (
-        <StagewiseToolbar config={{ plugins: [ReactPlugin] }} /> //for dev
-      )} */}
+    <>
       <main className="main-content">
         <SideMenu
           isOpen={isMenuOpen}
@@ -66,19 +71,42 @@ function App() {
           />
           <Route
             path="/demos/mystery-item"
-            element={<MysteryItemView onMenuClick={toggleMenu} />}
+            element={
+              <MysteryItemView
+                onMenuClick={toggleMenu}
+                onExplainClick={handleExplainClick}
+              />
+            }
           />
           <Route
             path="/demos/placeholder"
-            element={<PlaceholderView onMenuClick={toggleMenu} />}
+            element={
+              <PlaceholderView
+                onMenuClick={toggleMenu}
+                onExplainClick={handleExplainClick}
+              />
+            }
           />
         </Routes>
       </main>
-      {/* <Button variant="secondary" onClick={handleButtonClick}>
-        Action
-      </Button>
-      <p>Count is {count}</p>
-      <p>{message}</p> */}
+
+      <ExplainModal
+        isOpen={isExplainModalOpen}
+        onClose={handleExplainModalClose}
+      >
+        {getExplainContent()}
+      </ExplainModal>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      {/* {import.meta.env.DEV && (
+        <StagewiseToolbar config={{ plugins: [ReactPlugin] }} /> //for dev
+      )} */}
+      <AppContent />
     </Router>
   );
 }
