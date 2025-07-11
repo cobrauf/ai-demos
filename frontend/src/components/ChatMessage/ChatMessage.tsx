@@ -40,7 +40,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
             {isWelcomeMessage && onExplainClick && (
               <div style={{ marginTop: "12px" }}>
                 <Button variant="insidechat" onClick={onExplainClick}>
-                  How this was built
+                  How this demo was built
                 </Button>
               </div>
             )}

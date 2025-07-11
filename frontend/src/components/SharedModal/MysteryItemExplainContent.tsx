@@ -23,7 +23,7 @@ const MysteryItemExplainContent: React.FC = () => {
       </div>
       <div>
         <h4 style={{ marginBottom: "20px", color: "var(--text-color)" }}>
-          How this game was built
+          How this demo was built
         </h4>
         <div style={{ textAlign: "left", lineHeight: "1.6" }}>
           <ul
@@ -44,10 +44,10 @@ const MysteryItemExplainContent: React.FC = () => {
               <strong>
                 <u>tools</u>
               </strong>{" "}
-              such as check guesses, answer questions, give hints etc
+              such as check guesses, answer questions, give hints, etc
             </li>
             <li>
-              Maintains game state and conversation history using{" "}
+              Maintains game state and chat history using{" "}
               <strong>
                 <u>memory</u>
               </strong>
