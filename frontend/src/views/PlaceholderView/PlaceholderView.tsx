@@ -27,11 +27,13 @@ const PlaceholderView: React.FC<PlaceholderViewProps> = ({
             experiences.
           </p> */}
         </div>
-        {/* <Button variant="cancel">cancel</Button>
+        {/* <Button variant="base">Get Started</Button>
+        <Button variant="secondary">Learn More</Button>
+        <Button variant="cancel">cancel</Button>
         <Button variant="disabled">disabled</Button>
         <Button variant="icon">icon</Button>
-        <Button variant="iconCircle">iconCircle</Button> */}
-
+        <Button variant="iconCircle">iconCircle</Button>
+        <Button variant="insidechat">insidechat</Button> */}
         {/* <div className={styles.featuresGrid}>
           <div className={styles.featureCard}>
             <h3>Interactive Games</h3>

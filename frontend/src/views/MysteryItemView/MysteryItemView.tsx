@@ -245,6 +245,7 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({
             key={msg.id || index}
             sender={msg.sender}
             text={msg.text}
+            onExplainClick={onExplainClick}
           />
         ))}
         {/* <Button variant="cancel">cancel</Button> */}

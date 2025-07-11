@@ -8,7 +8,8 @@ type ButtonVariant =
   | "cancel"
   | "disabled"
   | "icon"
-  | "iconCircle";
+  | "iconCircle"
+  | "insidechat";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
