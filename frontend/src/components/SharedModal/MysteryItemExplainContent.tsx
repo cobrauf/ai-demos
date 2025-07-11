@@ -67,7 +67,7 @@ const MysteryItemExplainContent: React.FC = () => {
               }}
             >
               <img
-                src="/public/mysteryItem/mystery-item-chart-1.jpg"
+                src="/mysteryItem/mystery-item-chart-1.jpg"
                 alt="Mystery Item Game Chart 1"
                 style={{
                   width: "80%",
@@ -78,7 +78,7 @@ const MysteryItemExplainContent: React.FC = () => {
                 }}
               />
               <img
-                src="/public/mysteryItem/mystery-item-chart-2.jpg"
+                src="/mysteryItem/mystery-item-chart-2.jpg"
                 alt="Mystery Item Game Chart 2"
                 style={{
                   width: "80%",
