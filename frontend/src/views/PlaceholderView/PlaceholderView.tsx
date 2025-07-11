@@ -1,16 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./PlaceholderView.module.css";
 import TopBar from "../../components/TopBar/TopBar";
 import { Button } from "../../components/Button/Button";
+import ExplainModal from "../../components/SharedModal/ExplainModal";
+import PlaceholderExplainContent from "../../components/SharedModal/PlaceholderExplainContent";
 
 interface PlaceholderViewProps {
   onMenuClick: () => void;
 }
 
 const PlaceholderView: React.FC<PlaceholderViewProps> = ({ onMenuClick }) => {
+  const [isExplainModalOpen, setIsExplainModalOpen] = useState(false);
+
+  const handleExplainClick = () => {
+    setIsExplainModalOpen(true);
+  };
+
+  const handleExplainModalClose = () => {
+    setIsExplainModalOpen(false);
+  };
+
   return (
     <div className={styles.container}>
-      <TopBar title="Placeholder" onMenuClick={onMenuClick} />
+      <TopBar
+        title="Placeholder"
+        onMenuClick={onMenuClick}
+        onExplainClick={handleExplainClick}
+      />
       <main className={styles.contentArea}>
         <div className={styles.welcomeSection}>
           <h1 className={styles.title}>Other demos coming soon...</h1>
@@ -59,6 +75,13 @@ const PlaceholderView: React.FC<PlaceholderViewProps> = ({ onMenuClick }) => {
           <Button variant="secondary">Learn More</Button>
         </div>
       </footer> */}
+
+      <ExplainModal
+        isOpen={isExplainModalOpen}
+        onClose={handleExplainModalClose}
+      >
+        <PlaceholderExplainContent />
+      </ExplainModal>
     </div>
   );
 };

@@ -6,6 +6,7 @@ import TopBar from "../../components/TopBar/TopBar";
 import NewChatIcon from "../../components/ChatInput/NewChatIcon";
 import SharedModal from "../../components/SharedModal/SharedModal";
 import ExplainModal from "../../components/SharedModal/ExplainModal";
+import MysteryItemExplainContent from "../../components/SharedModal/MysteryItemExplainContent";
 import {
   invokeMysteryItemGraph,
   resetMysteryItemSession,
@@ -288,7 +289,9 @@ const MysteryItemView: React.FC<MysteryItemViewProps> = ({ onMenuClick }) => {
       <ExplainModal
         isOpen={isExplainModalOpen}
         onClose={handleExplainModalClose}
-      />
+      >
+        <MysteryItemExplainContent />
+      </ExplainModal>
     </div>
   );
 };
